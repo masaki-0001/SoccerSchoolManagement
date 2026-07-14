@@ -1,0 +1,195 @@
+﻿@model SoccerSchoolManagement.ViewModels.Students.StudentCreateViewModel
+
+@{
+    ViewData["Title"] = "生徒登録";
+}
+
+<h1>生徒登録</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create" method="post">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <h2 class="h4 mt-3">基本情報</h2>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label">氏名</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Kana" class="form-label">
+                    ふりがな
+                </label>
+                <input asp-for="Kana" class="form-control" />
+                <span asp-validation-for="Kana"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="BirthDate" class="form-label">
+                    生年月日
+                </label>
+                <input asp-for="BirthDate" class="form-control" />
+                <span asp-validation-for="BirthDate"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Grade" class="form-label">
+                    学年
+                </label>
+                <select asp-for="Grade" class="form-select">
+                    <option value="">選択してください</option>
+                    <option value="小学1年生">小学1年生</option>
+                    <option value="小学2年生">小学2年生</option>
+                    <option value="小学3年生">小学3年生</option>
+                    <option value="小学4年生">小学4年生</option>
+                    <option value="小学5年生">小学5年生</option>
+                    <option value="小学6年生">小学6年生</option>
+                </select>
+                <span asp-validation-for="Grade"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Gender" class="form-label">
+                    性別
+                </label>
+                <select asp-for="Gender" class="form-select">
+                    <option value="">選択してください</option>
+                    <option value="男性">男性</option>
+                    <option value="女性">女性</option>
+                </select>
+                <span asp-validation-for="Gender"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="JerseyNumber" class="form-label">
+                    背番号
+                </label>
+                <input asp-for="JerseyNumber"
+                       class="form-control" />
+                <span asp-validation-for="JerseyNumber"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="JoinedAt" class="form-label">
+                    入会日
+                </label>
+                <input asp-for="JoinedAt" class="form-control" />
+                <span asp-validation-for="JoinedAt"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Status" class="form-label">
+                    在籍状況
+                </label>
+                <select asp-for="Status" class="form-select">
+                    <option value="">選択してください</option>
+                    <option value="在籍中">在籍中</option>
+                    <option value="休会中">休会中</option>
+                    <option value="退会済み">退会済み</option>
+                </select>
+                <span asp-validation-for="Status"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="WithdrawnAt" class="form-label">
+                    退会日
+                </label>
+                <input asp-for="WithdrawnAt"
+                       class="form-control" />
+                <span asp-validation-for="WithdrawnAt"
+                      class="text-danger"></span>
+            </div>
+
+            <h2 class="h4 mt-4">保護者情報</h2>
+
+            <div class="mb-3">
+                <label asp-for="GuardianName" class="form-label">
+                    保護者氏名
+                </label>
+                <input asp-for="GuardianName"
+                       class="form-control" />
+                <span asp-validation-for="GuardianName"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="GuardianRelationship"
+                       class="form-label">
+                    保護者続柄
+                </label>
+                <select asp-for="GuardianRelationship" class="form-select">
+                    <option value="">選択してください</option>
+                    <option value="父親">父親</option>
+                    <option value="母親">母親</option>
+                    <option value="祖父母">祖父母</option>
+                </select>
+                <span asp-validation-for="GuardianRelationship"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="GuardianPhone"
+                       class="form-label">
+                    保護者電話番号
+                </label>
+                <input asp-for="GuardianPhone"
+                       class="form-control" />
+                <span asp-validation-for="GuardianPhone"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="GuardianEmail"
+                       class="form-label">
+                    保護者メールアドレス
+                </label>
+                <input asp-for="GuardianEmail"
+                       class="form-control" />
+                <span asp-validation-for="GuardianEmail"
+                      class="text-danger"></span>
+            </div>
+
+            <h2 class="h4 mt-4">その他</h2>
+
+            <div class="mb-3">
+                <label asp-for="Note" class="form-label">
+                    備考
+                </label>
+                <textarea asp-for="Note"
+                          class="form-control"
+                          rows="5"></textarea>
+                <span asp-validation-for="Note"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit"
+                        class="btn btn-primary">
+                    登録
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+                    一覧へ戻る
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
