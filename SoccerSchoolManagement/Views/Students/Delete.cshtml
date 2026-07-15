@@ -1,0 +1,54 @@
+﻿@model SoccerSchoolManagement.Models.Student
+
+@{
+    ViewData["Title"] = "生徒削除確認";
+}
+
+<div class="mb-4">
+    <h1>生徒削除確認</h1>
+    <p class="text-danger mb-0">
+        次の生徒を通常画面から非表示にします。内容を確認してください。
+    </p>
+</div>
+
+<div class="alert alert-warning" role="alert">
+    <strong>注意：</strong>
+    この操作は退会処理ではありません。
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">削除対象</div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">氏名</dt>
+            <dd class="col-sm-8">@Model.Name</dd>
+
+            <dt class="col-sm-4">ふりがな</dt>
+            <dd class="col-sm-8">@Model.Kana</dd>
+
+            <dt class="col-sm-4">生年月日</dt>
+            <dd class="col-sm-8">@Model.BirthDate.ToString("yyyy年M月d日")</dd>
+
+            <dt class="col-sm-4">学年</dt>
+            <dd class="col-sm-8">@Model.Grade</dd>
+
+            <dt class="col-sm-4">在籍状況</dt>
+            <dd class="col-sm-8">@Model.Status</dd>
+
+            <dt class="col-sm-4">保護者氏名</dt>
+            <dd class="col-sm-8">@Model.GuardianName</dd>
+
+            <dt class="col-sm-4">保護者電話番号</dt>
+            <dd class="col-sm-8">@Model.GuardianPhone</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input asp-for="Id" type="hidden" />
+
+    <button type="submit" class="btn btn-danger">削除する</button>
+    <a asp-action="Details"
+       asp-route-id="@Model.Id"
+       class="btn btn-secondary">キャンセル</a>
+</form>

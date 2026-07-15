@@ -11,7 +11,7 @@ using SoccerSchoolManagement.Data;
 namespace SoccerSchoolManagement.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260713224945_InitialCreate")]
+    [Migration("20260714210318_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -26,7 +26,7 @@ namespace SoccerSchoolManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("BirthDate")
+                    b.Property<DateTime>("BirthDate")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
@@ -36,6 +36,7 @@ namespace SoccerSchoolManagement.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Gender")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
@@ -49,6 +50,7 @@ namespace SoccerSchoolManagement.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("GuardianName")
+                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
@@ -58,6 +60,7 @@ namespace SoccerSchoolManagement.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("GuardianRelationship")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 

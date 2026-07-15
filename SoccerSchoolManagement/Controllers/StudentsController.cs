@@ -15,15 +15,56 @@ public class StudentsController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? keyword)
     {
-        var students = await _context.Students
+        var normalizedKeyword = string.IsNullOrWhiteSpace(keyword)
+            ? null
+            : keyword.Trim();
+
+        var query = _context.Students
             .Where(student => !student.IsDeleted)
+            .AsNoTracking();
+
+        if (normalizedKeyword is not null)
+        {
+            query = query.Where(student =>
+                student.Name.Contains(normalizedKeyword)
+                || student.Kana.Contains(normalizedKeyword));
+        }
+
+        var students = await query
             .OrderBy(student => student.Kana)
-            .AsNoTracking()
             .ToListAsync();
 
-        return View(students);
+        var model = new StudentIndexViewModel
+        {
+            Keyword = normalizedKeyword,
+            Students = students
+        };
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (!id.HasValue)
+        {
+            return NotFound();
+        }
+
+        var student = await _context.Students
+            .AsNoTracking()
+            .FirstOrDefaultAsync(student =>
+                student.Id == id.Value
+                && !student.IsDeleted);
+
+        if (student is null)
+        {
+            return NotFound();
+        }
+
+        return View(student);
     }
 
     [HttpGet]
@@ -52,7 +93,7 @@ public class StudentsController : Controller
             Grade = model.Grade,
             Gender = model.Gender,
             JerseyNumber = model.JerseyNumber,
-            JoinedAt = model.JoinedAt,
+            JoinedAt = model.JoinedAt!.Value,
             Status = model.Status,
             WithdrawnAt = model.WithdrawnAt,
             GuardianName = model.GuardianName,
@@ -67,6 +108,146 @@ public class StudentsController : Controller
         };
 
         _context.Students.Add(student);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (!id.HasValue)
+        {
+            return NotFound();
+        }
+
+        var student = await _context.Students
+            .AsNoTracking()
+            .FirstOrDefaultAsync(student =>
+                student.Id == id.Value
+                && !student.IsDeleted);
+
+        if (student is null)
+        {
+            return NotFound();
+        }
+
+        var model = new StudentEditViewModel
+        {
+            Id = student.Id,
+            Name = student.Name,
+            Kana = student.Kana,
+            BirthDate = student.BirthDate,
+            Grade = student.Grade,
+            Gender = student.Gender,
+            JerseyNumber = student.JerseyNumber,
+            JoinedAt = student.JoinedAt,
+            Status = student.Status,
+            WithdrawnAt = student.WithdrawnAt,
+            GuardianName = student.GuardianName,
+            GuardianRelationship =
+                student.GuardianRelationship,
+            GuardianPhone = student.GuardianPhone,
+            GuardianEmail = student.GuardianEmail,
+            Note = student.Note
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+        int id,
+        StudentEditViewModel model)
+    {
+        if (id != model.Id)
+        {
+            return NotFound();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var student = await _context.Students
+            .FirstOrDefaultAsync(student =>
+                student.Id == id
+                && !student.IsDeleted);
+
+        if (student is null)
+        {
+            return NotFound();
+        }
+
+        student.Name = model.Name;
+        student.Kana = model.Kana;
+        student.BirthDate = model.BirthDate!.Value;
+        student.Grade = model.Grade;
+        student.Gender = model.Gender;
+        student.JerseyNumber = model.JerseyNumber;
+        student.JoinedAt = model.JoinedAt!.Value;
+        student.Status = model.Status;
+        student.WithdrawnAt = model.WithdrawnAt;
+        student.GuardianName = model.GuardianName;
+        student.GuardianRelationship =
+            model.GuardianRelationship;
+        student.GuardianPhone = model.GuardianPhone;
+        student.GuardianEmail = model.GuardianEmail;
+        student.Note = model.Note;
+        student.UpdatedAt = DateTime.Now;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(
+            nameof(Details),
+            new { id = student.Id });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (!id.HasValue)
+        {
+            return NotFound();
+        }
+
+        var student = await _context.Students
+            .AsNoTracking()
+            .FirstOrDefaultAsync(student =>
+                student.Id == id.Value
+                && !student.IsDeleted);
+
+        if (student is null)
+        {
+            return NotFound();
+        }
+
+        return View(student);
+    }
+
+    [HttpPost]
+    [ActionName(nameof(Delete))]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var student = await _context.Students
+            .FirstOrDefaultAsync(student =>
+                student.Id == id
+                && !student.IsDeleted);
+
+        if (student is null)
+        {
+            return NotFound();
+        }
+
+        var now = DateTime.Now;
+
+        student.IsDeleted = true;
+        student.DeletedAt = now;
+        student.UpdatedAt = now;
+
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));

@@ -1,44 +1,116 @@
-﻿@model List<SoccerSchoolManagement.Models.Student>
+﻿@model SoccerSchoolManagement.ViewModels.Students.StudentIndexViewModel
 
 @{
     ViewData["Title"] = "生徒一覧";
 }
 
-<h1>生徒一覧</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">生徒一覧</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">
+    <a asp-action="Create"
+       class="btn btn-primary">
         新規登録
     </a>
-</p>
+</div>
 
-@if (Model.Count == 0)
+<form asp-action="Index"
+      method="get"
+      class="row g-2 align-items-end mb-4">
+
+    <div class="col-md-6">
+        <label for="keyword"
+               class="form-label">
+            氏名・ふりがな
+        </label>
+
+        <input type="search"
+               id="keyword"
+               name="keyword"
+               value="@Model.Keyword"
+               class="form-control"
+               placeholder="氏名またはふりがなを入力してください" />
+    </div>
+
+    <div class="col-md-auto">
+        <button type="submit"
+                class="btn btn-primary">
+            検索
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            条件クリア
+        </a>
+    </div>
+</form>
+
+@if (Model.Students.Count == 0)
 {
-    <p>登録されている生徒はいません。</p>
+    @if (string.IsNullOrWhiteSpace(Model.Keyword))
+    {
+        <div class="alert alert-info">
+            登録されている生徒はいません。
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            「@Model.Keyword」に一致する生徒はいません。
+        </div>
+    }
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>氏名</th>
-                <th>ふりがな</th>
-                <th>学年</th>
-                <th>在籍状況</th>
-                <th>保護者電話番号</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var student in Model)
-            {
+    <p class="text-muted">
+        @Model.Students.Count 件表示しています。
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle">
+            <thead class="table-light">
                 <tr>
-                    <td>@student.Name</td>
-                    <td>@student.Kana</td>
-                    <td>@student.Grade</td>
-                    <td>@student.Status</td>
-                    <td>@student.GuardianPhone</td>
+                    <th>氏名</th>
+                    <th>ふりがな</th>
+                    <th>学年</th>
+                    <th>在籍状況</th>
+                    <th>保護者電話番号</th>
+                    <th>操作</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+
+            <tbody>
+                @foreach (var student in Model.Students)
+                {
+                    <tr>
+                        <td>@student.Name</td>
+                        <td>@student.Kana</td>
+                        <td>@student.Grade</td>
+                        <td>@student.Status</td>
+                        <td>@student.GuardianPhone</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <a asp-action="Details"
+                                   asp-route-id="@student.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    詳細
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@student.Id"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    編集
+                                </a>
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@student.Id"
+                                   class="btn btn-outline-danger btn-sm">
+                                    削除
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
