@@ -1,8 +1,34 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "ホーム";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="mb-4">
+    <h1>サッカー教室 業務管理</h1>
+
+    <p class="text-muted mb-0">
+        現在は生徒管理機能を利用できます。
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                生徒管理
+            </div>
+
+            <div class="card-body">
+                <p>
+                    生徒の登録、詳細確認、編集、検索、
+                    論理削除を行います。
+                </p>
+
+                <a asp-controller="Students"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    生徒管理を開く
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

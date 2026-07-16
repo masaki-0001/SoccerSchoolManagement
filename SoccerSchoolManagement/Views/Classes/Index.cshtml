@@ -1,0 +1,101 @@
+﻿@model List<SoccerSchoolManagement.Models.SoccerClass>
+
+@{
+    ViewData["Title"] = "クラス一覧";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">クラス一覧</h1>
+
+    <a asp-action="Create"
+       class="btn btn-primary">
+        新規登録
+    </a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">
+        登録されているクラスはありません。
+    </div>
+}
+else
+{
+    <p class="text-muted">
+        @Model.Count 件表示しています。
+    </p>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>クラス名</th>
+                    <th>対象学年</th>
+                    <th>曜日</th>
+                    <th>時間</th>
+                    <th>会場</th>
+                    <th>担当者</th>
+                    <th>利用状態</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var soccerClass in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-action="Details"
+                               asp-route-id="@soccerClass.Id">
+                                @soccerClass.Name
+                            </a>
+                        </td>
+
+                        <td>@soccerClass.TargetGrade</td>
+                        <td>@soccerClass.DayOfWeek</td>
+
+                        <td>
+                            @soccerClass.StartTime.ToString(@"hh\:mm")
+                            ～
+                            @soccerClass.EndTime.ToString(@"hh\:mm")
+                        </td>
+
+                        <td>@soccerClass.VenueName</td>
+                        <td>@soccerClass.CoachName</td>
+
+                        <td>
+                            @if (soccerClass.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    使用中
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    使用停止
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a asp-action="Details"
+                                   asp-route-id="@soccerClass.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    詳細
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@soccerClass.Id"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    編集
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

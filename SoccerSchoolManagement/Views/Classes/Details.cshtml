@@ -1,0 +1,211 @@
+﻿@model SoccerSchoolManagement.ViewModels.Classes.SoccerClassDetailsViewModel
+
+@{
+    ViewData["Title"] = "クラス詳細";
+    var soccerClass = Model.SoccerClass;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1">クラス詳細</h1>
+        <p class="text-muted mb-0">
+            @soccerClass.Name
+        </p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Edit"
+           asp-route-id="@soccerClass.Id"
+           class="btn btn-primary">
+            編集
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            一覧へ戻る
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        クラス基本情報
+    </div>
+
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">
+                クラス名
+            </dt>
+            <dd class="col-sm-9">
+                @soccerClass.Name
+            </dd>
+
+            <dt class="col-sm-3">
+                対象学年
+            </dt>
+            <dd class="col-sm-9">
+                @soccerClass.TargetGrade
+            </dd>
+
+            <dt class="col-sm-3">
+                曜日
+            </dt>
+            <dd class="col-sm-9">
+                @soccerClass.DayOfWeek
+            </dd>
+
+            <dt class="col-sm-3">
+                時間
+            </dt>
+            <dd class="col-sm-9">
+                @soccerClass.StartTime.ToString(@"hh\:mm")
+                ～
+                @soccerClass.EndTime.ToString(@"hh\:mm")
+            </dd>
+
+            <dt class="col-sm-3">
+                会場
+            </dt>
+            <dd class="col-sm-9">
+                @soccerClass.VenueName
+            </dd>
+
+            <dt class="col-sm-3">
+                担当者
+            </dt>
+            <dd class="col-sm-9">
+                @soccerClass.CoachName
+            </dd>
+
+            <dt class="col-sm-3">
+                利用状態
+            </dt>
+            <dd class="col-sm-9">
+                @if (soccerClass.IsActive)
+                {
+                    <span class="badge bg-success">
+                        使用中
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">
+                        使用停止
+                    </span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">
+                備考
+            </dt>
+            <dd class="col-sm-9">
+                @if (string.IsNullOrWhiteSpace(soccerClass.Note))
+                {
+                    <span class="text-muted">
+                        未登録
+                    </span>
+                }
+                else
+                {
+                    @soccerClass.Note
+                }
+            </dd>
+
+            <dt class="col-sm-3">
+                登録日時
+            </dt>
+            <dd class="col-sm-9">
+                @soccerClass.CreatedAt.ToString(
+                    "yyyy年M月d日 HH:mm")
+            </dd>
+
+            <dt class="col-sm-3">
+                最終更新日時
+            </dt>
+            <dd class="col-sm-9">
+                @soccerClass.UpdatedAt.ToString(
+                    "yyyy年M月d日 HH:mm")
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        所属している生徒
+    </div>
+
+    <div class="card-body">
+        @if (Model.CurrentMemberships.Count == 0)
+        {
+            <p class="text-muted mb-0">
+                現在所属している生徒はいません。
+            </p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>生徒名</th>
+                            <th>ふりがな</th>
+                            <th>学年</th>
+                            <th>在籍状況</th>
+                            <th>所属開始日</th>
+                            <th>備考</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var membership
+                            in Model.CurrentMemberships)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Students"
+                                       asp-action="Details"
+                                       asp-route-id="@membership.StudentId">
+                                        @membership.Student.Name
+                                    </a>
+                                </td>
+
+                                <td>
+                                    @membership.Student.Kana
+                                </td>
+
+                                <td>
+                                    @membership.Student.Grade
+                                </td>
+
+                                <td>
+                                    @membership.Student.Status
+                                </td>
+
+                                <td>
+                                    @membership.StartDate.ToString(
+                                        "yyyy年M月d日")
+                                </td>
+
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(
+                                        membership.Note))
+                                    {
+                                        <span class="text-muted">
+                                            未登録
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @membership.Note
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
