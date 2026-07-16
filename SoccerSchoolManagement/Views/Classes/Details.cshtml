@@ -142,8 +142,7 @@
             </dt>
 
             <dd class="col-sm-9">
-                @soccerClass.CreatedAt.ToString(
-                    "yyyy年M月d日 HH:mm")
+                @soccerClass.CreatedAt.ToString("yyyy年M月d日 HH:mm")
             </dd>
 
             <dt class="col-sm-3">
@@ -151,8 +150,7 @@
             </dt>
 
             <dd class="col-sm-9">
-                @soccerClass.UpdatedAt.ToString(
-                    "yyyy年M月d日 HH:mm")
+                @soccerClass.UpdatedAt.ToString("yyyy年M月d日 HH:mm")
             </dd>
         </dl>
     </div>
@@ -186,8 +184,7 @@
                     </thead>
 
                     <tbody>
-                        @foreach (var membership
-                            in Model.CurrentMemberships)
+                        @foreach (var membership in Model.CurrentMemberships)
                         {
                             <tr>
                                 <td>
@@ -211,13 +208,11 @@
                                 </td>
 
                                 <td>
-                                    @membership.StartDate.ToString(
-                                        "yyyy年M月d日")
+                                    @membership.StartDate.ToString("yyyy年M月d日")
                                 </td>
 
                                 <td>
-                                    @if (string.IsNullOrWhiteSpace(
-                                        membership.Note))
+                                    @if (string.IsNullOrWhiteSpace(membership.Note))
                                     {
                                         <span class="text-muted">
                                             未登録
@@ -281,18 +276,15 @@
                                 </td>
 
                                 <td>
-                                    @membership.StartDate.ToString(
-                                        "yyyy年M月d日")
+                                    @membership.StartDate.ToString("yyyy年M月d日")
                                 </td>
 
                                 <td>
-                                    @membership.EndDate!.Value.ToString(
-                                        "yyyy年M月d日")
+                                    @membership.EndDate!.Value.ToString("yyyy年M月d日")
                                 </td>
 
                                 <td>
-                                    @if (string.IsNullOrWhiteSpace(
-                                        membership.Note))
+                                    @if (string.IsNullOrWhiteSpace(membership.Note))
                                     {
                                         <span class="text-muted">
                                             未登録

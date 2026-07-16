@@ -45,18 +45,14 @@ public class SoccerClassEditViewModel : IValidatableObject
         if (!string.IsNullOrWhiteSpace(DayOfWeek)
             && !SoccerClassFormOptions.DaysOfWeek.Contains(DayOfWeek))
         {
-            yield return new ValidationResult(
-                "曜日の値が正しくありません。",
-                new[] { nameof(DayOfWeek) });
+            yield return new ValidationResult("曜日の値が正しくありません。", new[] { nameof(DayOfWeek) });
         }
 
         if (StartTime.HasValue
             && EndTime.HasValue
             && EndTime.Value <= StartTime.Value)
         {
-            yield return new ValidationResult(
-                "終了時刻は開始時刻より後にしてください。",
-                new[] { nameof(EndTime) });
+            yield return new ValidationResult("終了時刻は開始時刻より後にしてください。", new[] { nameof(EndTime) });
         }
     }
 }

@@ -93,8 +93,7 @@ public class ClassesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(
-        SoccerClassCreateViewModel model)
+    public async Task<IActionResult> Create(SoccerClassCreateViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -123,9 +122,7 @@ public class ClassesController : Controller
         _context.Classes.Add(soccerClass);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction(
-            nameof(Details),
-            new { id = soccerClass.Id });
+        return RedirectToAction(nameof(Details) , new { id = soccerClass.Id });
     }
 
     [HttpGet]
@@ -166,9 +163,7 @@ public class ClassesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(
-        int id,
-        SoccerClassEditViewModel model)
+    public async Task<IActionResult> Edit(int id , SoccerClassEditViewModel model)
     {
         if (id != model.Id)
         {
@@ -229,8 +224,7 @@ public class ClassesController : Controller
 
         if (!soccerClass.IsActive)
         {
-            TempData["ErrorMessage"] =
-                "使用停止中のクラスには生徒を所属させられません。";
+            TempData["ErrorMessage"] = "使用停止中のクラスには生徒を所属させられません。";
 
             return RedirectToAction(
                 nameof(Details),
@@ -251,9 +245,7 @@ public class ClassesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddMembership(
-        int id,
-        StudentClassCreateViewModel model)
+    public async Task<IActionResult> AddMembership(int id , StudentClassCreateViewModel model)
     {
         if (id != model.ClassId)
         {
@@ -275,8 +267,7 @@ public class ClassesController : Controller
 
         if (!soccerClass.IsActive)
         {
-            TempData["ErrorMessage"] =
-                "使用停止中のクラスには生徒を所属させられません。";
+            TempData["ErrorMessage"] = "使用停止中のクラスには生徒を所属させられません。";
 
             return RedirectToAction(
                 nameof(Details),
@@ -296,9 +287,7 @@ public class ClassesController : Controller
 
             if (selectedStudent is null)
             {
-                ModelState.AddModelError(
-                    nameof(StudentClassCreateViewModel.StudentId),
-                    "選択した生徒が見つからないか、退会済みです。");
+                ModelState.AddModelError(nameof(StudentClassCreateViewModel.StudentId) , "選択した生徒が見つからないか、退会済みです。");
             }
         }
 
@@ -313,9 +302,7 @@ public class ClassesController : Controller
 
             if (alreadyExists)
             {
-                ModelState.AddModelError(
-                    nameof(StudentClassCreateViewModel.StudentId),
-                    "この生徒は既にクラスへ所属しています。");
+                ModelState.AddModelError(nameof(StudentClassCreateViewModel.StudentId) , "この生徒は既にクラスへ所属しています。");
             }
         }
 
@@ -349,23 +336,17 @@ public class ClassesController : Controller
         }
         catch (DbUpdateException)
         {
-            ModelState.AddModelError(
-                string.Empty,
-                "所属情報を保存できませんでした。"
-                + "同じ生徒が既に所属していないか確認してください。");
+            ModelState.AddModelError(string.Empty,"所属情報を保存できませんでした。" + "同じ生徒が既に所属していないか確認してください。");
 
             await LoadStudentOptionsAsync(model);
 
             return View(model);
         }
 
-        return RedirectToAction(
-            nameof(Details),
-            new { id });
+        return RedirectToAction(nameof(Details), new { id });
     }
 
-    private async Task LoadStudentOptionsAsync(
-        StudentClassCreateViewModel model)
+    private async Task LoadStudentOptionsAsync(StudentClassCreateViewModel model)
     {
         var currentStudentIds = await _context.StudentClasses
             .Where(studentClass =>

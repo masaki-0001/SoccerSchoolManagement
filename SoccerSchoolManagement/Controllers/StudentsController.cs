@@ -156,7 +156,7 @@ public class StudentsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id,StudentEditViewModel model)
+    public async Task<IActionResult> Edit(int id , StudentEditViewModel model)
     {
         if (id != model.Id)
         {
