@@ -75,8 +75,7 @@ public class StudentsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(
-        StudentCreateViewModel model)
+    public async Task<IActionResult> Create(StudentCreateViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -157,9 +156,7 @@ public class StudentsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(
-        int id,
-        StudentEditViewModel model)
+    public async Task<IActionResult> Edit(int id,StudentEditViewModel model)
     {
         if (id != model.Id)
         {

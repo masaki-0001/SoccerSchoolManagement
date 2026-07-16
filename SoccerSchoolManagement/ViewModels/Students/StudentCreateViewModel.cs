@@ -64,46 +64,40 @@ public class StudentCreateViewModel : IValidatableObject
         if (BirthDate.HasValue && BirthDate.Value.Date > DateTime.Today)
         {
             yield return new ValidationResult(
-                "生年月日に未来日は指定できません。",
-                new[] { nameof(BirthDate) });
+                "生年月日に未来日は指定できません。", new[] { nameof(BirthDate) });
         }
 
         if (!string.IsNullOrWhiteSpace(Grade)
             && !StudentFormOptions.Grades.Contains(Grade))
         {
             yield return new ValidationResult(
-                "学年の値が正しくありません。",
-                new[] { nameof(Grade) });
+                "学年の値が正しくありません。", new[] { nameof(Grade) });
         }
 
         if (!string.IsNullOrWhiteSpace(Gender)
             && !StudentFormOptions.Genders.Contains(Gender))
         {
             yield return new ValidationResult(
-                "性別の値が正しくありません。",
-                new[] { nameof(Gender) });
+                "性別の値が正しくありません。", new[] { nameof(Gender) });
         }
 
         if (!string.IsNullOrWhiteSpace(Status)
             && !StudentFormOptions.Statuses.Contains(Status))
         {
             yield return new ValidationResult(
-                "在籍状況の値が正しくありません。",
-                new[] { nameof(Status) });
+                "在籍状況の値が正しくありません。", new[] { nameof(Status) });
         }
 
         if (Status == "退会済み" && !WithdrawnAt.HasValue)
         {
             yield return new ValidationResult(
-                "退会済みの場合は退会日を入力してください。",
-                new[] { nameof(WithdrawnAt) });
+                "退会済みの場合は退会日を入力してください。", new[] { nameof(WithdrawnAt) });
         }
 
         if (Status != "退会済み" && WithdrawnAt.HasValue)
         {
             yield return new ValidationResult(
-                "退会日は在籍状況が退会済みの場合だけ入力してください。",
-                new[] { nameof(WithdrawnAt) });
+                "退会日は在籍状況が退会済みの場合だけ入力してください。", new[] { nameof(WithdrawnAt) });
         }
     }
 }

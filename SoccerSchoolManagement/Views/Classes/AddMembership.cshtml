@@ -1,0 +1,104 @@
+﻿@model SoccerSchoolManagement.ViewModels.Classes.StudentClassCreateViewModel
+
+@{
+    ViewData["Title"] = "生徒の所属登録";
+}
+
+<h1>生徒の所属登録</h1>
+
+<p class="text-muted">
+    所属先クラス：@Model.ClassName
+</p>
+
+@if (Model.StudentOptions.Count == 0)
+{
+    <div class="alert alert-info">
+        所属させることができる生徒はいません。
+    </div>
+
+    <a asp-action="Details"
+       asp-route-id="@Model.ClassId"
+       class="btn btn-secondary">
+        クラス詳細へ戻る
+    </a>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="AddMembership"
+                  asp-route-id="@Model.ClassId"
+                  method="post">
+
+                <input asp-for="ClassId"
+                       type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="StudentId"
+                           class="form-label">
+                        生徒
+                    </label>
+
+                    <select asp-for="StudentId"
+                            asp-items="Model.StudentOptions"
+                            class="form-select">
+                        <option value="">
+                            選択してください
+                        </option>
+                    </select>
+
+                    <span asp-validation-for="StudentId"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="StartDate"
+                           class="form-label">
+                        所属開始日
+                    </label>
+
+                    <input asp-for="StartDate"
+                           type="date"
+                           class="form-control" />
+
+                    <span asp-validation-for="StartDate"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Note"
+                           class="form-label">
+                        備考
+                    </label>
+
+                    <textarea asp-for="Note"
+                              class="form-control"
+                              rows="4"></textarea>
+
+                    <span asp-validation-for="Note"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit"
+                            class="btn btn-primary">
+                        所属を登録
+                    </button>
+
+                    <a asp-action="Details"
+                       asp-route-id="@Model.ClassId"
+                       class="btn btn-secondary">
+                        キャンセル
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
