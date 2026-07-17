@@ -41,8 +41,7 @@ public class ClassesController : Controller
 
         var soccerClass = await _context.Classes
             .AsNoTracking()
-            .FirstOrDefaultAsync(soccerClass =>
-                soccerClass.Id == id.Value
+            .FirstOrDefaultAsync(soccerClass => soccerClass.Id == id.Value
                 && !soccerClass.IsDeleted);
 
         if (soccerClass is null)
@@ -51,28 +50,23 @@ public class ClassesController : Controller
         }
 
         var memberships = await _context.StudentClasses
-            .Where(studentClass =>
-                studentClass.ClassId == id.Value
+            .Where(studentClass => studentClass.ClassId == id.Value
                 && !studentClass.IsDeleted
                 && !studentClass.Student.IsDeleted)
-            .Include(studentClass =>
-                studentClass.Student)
+            .Include(studentClass => studentClass.Student)
             .AsNoTracking()
             .ToListAsync();
 
         var upcomingLessons = await _context.Lessons
-            .Where(lesson =>
-                lesson.ClassId == id.Value
+            .Where(lesson => lesson.ClassId == id.Value
                 && !lesson.IsDeleted
                 && lesson.LessonDate >= DateTime.Today)
             .AsNoTracking()
             .ToListAsync();
 
         upcomingLessons = upcomingLessons
-            .OrderBy(lesson =>
-                lesson.LessonDate)
-            .ThenBy(lesson =>
-                lesson.StartTime)
+            .OrderBy(lesson => lesson.LessonDate)
+            .ThenBy(lesson => lesson.StartTime)
             .Take(5)
             .ToList();
 
@@ -81,21 +75,15 @@ public class ClassesController : Controller
             SoccerClass = soccerClass,
 
             CurrentMemberships = memberships
-                .Where(studentClass =>
-                    !studentClass.EndDate.HasValue)
-                .OrderBy(studentClass =>
-                    studentClass.Student.Kana)
-                .ThenBy(studentClass =>
-                    studentClass.Student.Name)
+                .Where(studentClass => !studentClass.EndDate.HasValue)
+                .OrderBy(studentClass => studentClass.Student.Kana)
+                .ThenBy(studentClass => studentClass.Student.Name)
                 .ToList(),
 
             PastMemberships = memberships
-                .Where(studentClass =>
-                    studentClass.EndDate.HasValue)
-                .OrderByDescending(studentClass =>
-                    studentClass.EndDate)
-                .ThenBy(studentClass =>
-                    studentClass.Student.Kana)
+                .Where(studentClass => studentClass.EndDate.HasValue)
+                .OrderByDescending(studentClass => studentClass.EndDate)
+                .ThenBy(studentClass => studentClass.Student.Kana)
                 .ToList(),
 
             UpcomingLessons = upcomingLessons
@@ -141,7 +129,7 @@ public class ClassesController : Controller
         _context.Classes.Add(soccerClass);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Details) , new { id = soccerClass.Id });
+        return RedirectToAction(nameof(Details) , new {id = soccerClass.Id});
     }
 
     [HttpGet]
@@ -154,9 +142,7 @@ public class ClassesController : Controller
 
         var soccerClass = await _context.Classes
             .AsNoTracking()
-            .FirstOrDefaultAsync(soccerClass =>
-                soccerClass.Id == id.Value
-                && !soccerClass.IsDeleted);
+            .FirstOrDefaultAsync(soccerClass => soccerClass.Id == id.Value && !soccerClass.IsDeleted);
 
         if (soccerClass is null)
         {
@@ -195,9 +181,7 @@ public class ClassesController : Controller
         }
 
         var soccerClass = await _context.Classes
-            .FirstOrDefaultAsync(soccerClass =>
-                soccerClass.Id == id
-                && !soccerClass.IsDeleted);
+            .FirstOrDefaultAsync(soccerClass => soccerClass.Id == id && !soccerClass.IsDeleted);
 
         if (soccerClass is null)
         {
@@ -217,7 +201,7 @@ public class ClassesController : Controller
 
         await _context.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Details), new { id = soccerClass.Id });
+        return RedirectToAction(nameof(Details), new {id = soccerClass.Id });
     }
 
     [HttpGet]
@@ -230,9 +214,7 @@ public class ClassesController : Controller
 
         var soccerClass = await _context.Classes
             .AsNoTracking()
-            .FirstOrDefaultAsync(soccerClass =>
-                soccerClass.Id == id.Value
-                && !soccerClass.IsDeleted);
+            .FirstOrDefaultAsync(soccerClass => soccerClass.Id == id.Value && !soccerClass.IsDeleted);
 
         if (soccerClass is null)
         {
@@ -269,9 +251,7 @@ public class ClassesController : Controller
 
         var soccerClass = await _context.Classes
             .AsNoTracking()
-            .FirstOrDefaultAsync(soccerClass =>
-                soccerClass.Id == id
-                && !soccerClass.IsDeleted);
+            .FirstOrDefaultAsync(soccerClass => soccerClass.Id == id && !soccerClass.IsDeleted);
 
         if (soccerClass is null)
         {
@@ -284,7 +264,7 @@ public class ClassesController : Controller
         {
             TempData["ErrorMessage"] = "使用停止中のクラスには生徒を所属させられません。";
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new {id});
         }
 
         Student? selectedStudent = null;
@@ -293,9 +273,8 @@ public class ClassesController : Controller
         {
             selectedStudent = await _context.Students
                 .AsNoTracking()
-                .FirstOrDefaultAsync(student =>
-                    student.Id == model.StudentId.Value
-                    && !student.IsDeleted
+                .FirstOrDefaultAsync(student => student.Id == model.StudentId.Value
+                    && !student.IsDeleted 
                     && student.Status != "退会済み");
 
             if (selectedStudent is null)
@@ -307,8 +286,7 @@ public class ClassesController : Controller
         if (selectedStudent is not null)
         {
             var alreadyExists = await _context.StudentClasses
-                .AnyAsync(studentClass =>
-                    studentClass.StudentId == selectedStudent.Id
+                .AnyAsync(studentClass => studentClass.StudentId == selectedStudent.Id
                     && studentClass.ClassId == id
                     && !studentClass.IsDeleted
                     && !studentClass.EndDate.HasValue);
@@ -356,14 +334,97 @@ public class ClassesController : Controller
             return View(model);
         }
 
-        return RedirectToAction(nameof(Details), new { id });
+        return RedirectToAction(nameof(Details), new {id});
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EndMembership(int? id)
+    {
+        if (!id.HasValue)
+        {
+            return NotFound();
+        }
+
+        var membership = await _context.StudentClasses
+            .Include(studentClass => studentClass.Student)
+            .Include(studentClass => studentClass.SoccerClass)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(studentClass => studentClass.Id == id.Value
+                && !studentClass.IsDeleted
+                && !studentClass.Student.IsDeleted
+                && !studentClass.SoccerClass.IsDeleted
+                && !studentClass.EndDate.HasValue);
+
+        if (membership is null)
+        {
+            return NotFound();
+        }
+
+        var model = new StudentClassEndViewModel
+        {
+            StudentClassId = membership.Id,
+            ClassId = membership.ClassId,
+            ClassName = membership.SoccerClass.Name,
+            StudentName = membership.Student.Name,
+            StartDate = membership.StartDate,
+            EndDate = DateTime.Today
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EndMembership(
+    int id,
+    StudentClassEndViewModel model)
+    {
+        if (id != model.StudentClassId)
+        {
+            return NotFound();
+        }
+
+        var membership = await _context.StudentClasses
+            .Include(studentClass => studentClass.Student)
+            .Include(studentClass => studentClass.SoccerClass)
+            .FirstOrDefaultAsync(studentClass => studentClass.Id == id
+                && !studentClass.IsDeleted
+                && !studentClass.Student.IsDeleted
+                && !studentClass.SoccerClass.IsDeleted
+                && !studentClass.EndDate.HasValue);
+
+        if (membership is null)
+        {
+            return NotFound();
+        }
+
+        model.ClassId = membership.ClassId;
+        model.ClassName = membership.SoccerClass.Name;
+        model.StudentName = membership.Student.Name;
+        model.StartDate = membership.StartDate;
+
+        if (model.EndDate.HasValue && model.EndDate.Value.Date < membership.StartDate.Date)
+        {
+            ModelState.AddModelError(nameof(StudentClassEndViewModel.EndDate),"所属終了日は所属開始日以降にしてください。");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        membership.EndDate = model.EndDate!.Value.Date;
+        membership.UpdatedAt = DateTime.Now;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Details), new {id = membership.ClassId});
     }
 
     private async Task LoadStudentOptionsAsync(StudentClassCreateViewModel model)
     {
         var currentStudentIds = await _context.StudentClasses
-            .Where(studentClass =>
-                studentClass.ClassId == model.ClassId
+            .Where(studentClass => studentClass.ClassId == model.ClassId
                 && !studentClass.IsDeleted
                 && !studentClass.EndDate.HasValue)
             .Select(studentClass =>
@@ -371,8 +432,7 @@ public class ClassesController : Controller
             .ToListAsync();
 
         var students = await _context.Students
-            .Where(student =>
-                !student.IsDeleted
+            .Where(student => !student.IsDeleted
                 && student.Status != "退会済み"
                 && !currentStudentIds.Contains(student.Id))
             .AsNoTracking()

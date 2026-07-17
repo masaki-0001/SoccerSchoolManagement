@@ -55,9 +55,7 @@ public class StudentsController : Controller
 
         var student = await _context.Students
             .AsNoTracking()
-            .FirstOrDefaultAsync(student =>
-                student.Id == id.Value
-                && !student.IsDeleted);
+            .FirstOrDefaultAsync(student => student.Id == id.Value && !student.IsDeleted);
 
         if (student is null)
         {
@@ -122,9 +120,7 @@ public class StudentsController : Controller
 
         var student = await _context.Students
             .AsNoTracking()
-            .FirstOrDefaultAsync(student =>
-                student.Id == id.Value
-                && !student.IsDeleted);
+            .FirstOrDefaultAsync(student => student.Id == id.Value && !student.IsDeleted);
 
         if (student is null)
         {
@@ -169,9 +165,7 @@ public class StudentsController : Controller
         }
 
         var student = await _context.Students
-            .FirstOrDefaultAsync(student =>
-                student.Id == id
-                && !student.IsDeleted);
+            .FirstOrDefaultAsync(student => student.Id == id && !student.IsDeleted);
 
         if (student is null)
         {
@@ -210,9 +204,7 @@ public class StudentsController : Controller
 
         var student = await _context.Students
             .AsNoTracking()
-            .FirstOrDefaultAsync(student =>
-                student.Id == id.Value
-                && !student.IsDeleted);
+            .FirstOrDefaultAsync(student => student.Id == id.Value && !student.IsDeleted);
 
         if (student is null)
         {
@@ -228,9 +220,7 @@ public class StudentsController : Controller
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var student = await _context.Students
-            .FirstOrDefaultAsync(student =>
-                student.Id == id
-                && !student.IsDeleted);
+            .FirstOrDefaultAsync(student => student.Id == id && !student.IsDeleted);
 
         if (student is null)
         {

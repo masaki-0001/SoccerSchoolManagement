@@ -225,8 +225,7 @@ public class LessonsController : Controller
         if (model.ClassId.HasValue)
         {
             var classExists = await _context.Classes
-                .AnyAsync(soccerClass =>
-                    soccerClass.Id == model.ClassId.Value
+                .AnyAsync(soccerClass => soccerClass.Id == model.ClassId.Value
                     && !soccerClass.IsDeleted
                     && (soccerClass.IsActive
                     || soccerClass.Id == lesson.ClassId));
@@ -242,8 +241,7 @@ public class LessonsController : Controller
             var lessonDate = model.LessonDate.Value.Date;
 
             var duplicateExists =
-                await _context.Lessons.AnyAsync(
-                    existingLesson => existingLesson.Id != id
+                await _context.Lessons.AnyAsync( existingLesson => existingLesson.Id != id
                         && existingLesson.ClassId == model.ClassId.Value
                         && existingLesson.LessonDate == lessonDate
                         && existingLesson.StartTime == model.StartTime.Value
@@ -315,8 +313,7 @@ public class LessonsController : Controller
         return classes
             .Select(soccerClass => new SelectListItem
                 {
-                    Value =
-                        soccerClass.Id.ToString(),
+                    Value = soccerClass.Id.ToString(),
 
                     Text = soccerClass.IsActive
                         ? soccerClass.Name
