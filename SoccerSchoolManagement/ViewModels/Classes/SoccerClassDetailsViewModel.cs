@@ -10,4 +10,6 @@ public class SoccerClassDetailsViewModel
 
     public List<StudentClass> PastMemberships { get; set; } = new();
 
+    public List<Lesson> UpcomingLessons { get; set; } = new();
+
 }   

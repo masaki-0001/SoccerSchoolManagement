@@ -1,0 +1,171 @@
+﻿@using SoccerSchoolManagement.ViewModels.Lessons
+@model LessonCreateViewModel
+
+@{
+    ViewData["Title"] = "練習予定登録";
+}
+
+<h1>練習予定登録</h1>
+
+<p class="text-muted">
+    クラスごとの練習予定を登録します。
+</p>
+
+<div class="row">
+    <div class="col-lg-8">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ClassId"
+                       class="form-label">
+                    クラス
+                </label>
+
+                <select asp-for="ClassId"
+                        asp-items="Model.ClassOptions"
+                        class="form-select">
+                    <option value="">
+                        クラスを選択してください
+                    </option>
+                </select>
+
+                <span asp-validation-for="ClassId"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="LessonDate"
+                       class="form-label">
+                    開催日
+                </label>
+
+                <input asp-for="LessonDate"
+                       type="date"
+                       class="form-control" />
+
+                <span asp-validation-for="LessonDate"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="StartTime"
+                           class="form-label">
+                        開始時刻
+                    </label>
+
+                    <input asp-for="StartTime"
+                           type="time"
+                           step="60"
+                           class="form-control" />
+
+                    <span asp-validation-for="StartTime"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="EndTime"
+                           class="form-label">
+                        終了時刻
+                    </label>
+
+                    <input asp-for="EndTime"
+                           type="time"
+                           step="60"
+                           class="form-control" />
+
+                    <span asp-validation-for="EndTime"
+                          class="text-danger">
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="VenueName"
+                       class="form-label">
+                    会場名
+                </label>
+
+                <input asp-for="VenueName"
+                       class="form-control" />
+
+                <span asp-validation-for="VenueName"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CoachName"
+                       class="form-label">
+                    担当者名
+                </label>
+
+                <input asp-for="CoachName"
+                       class="form-control" />
+
+                <span asp-validation-for="CoachName"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Status"
+                       class="form-label">
+                    開催状況
+                </label>
+
+                <select asp-for="Status"
+                        class="form-select">
+                    @foreach (var status in LessonFormOptions.Statuses)
+                    {
+                        <option value="@status">
+                            @status
+                        </option>
+                    }
+                </select>
+
+                <span asp-validation-for="Status"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Note"
+                       class="form-label">
+                    備考
+                </label>
+
+                <textarea asp-for="Note"
+                          class="form-control"
+                          rows="4">
+                </textarea>
+
+                <span asp-validation-for="Note"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit"
+                        class="btn btn-primary">
+                    登録
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+                    一覧へ戻る
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

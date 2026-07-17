@@ -16,6 +16,8 @@ public class AppDbContext : DbContext
 
     public DbSet<StudentClass> StudentClasses { get; set; }
 
+    public DbSet<Lesson> Lessons { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -41,5 +43,22 @@ public class AppDbContext : DbContext
             .HasDatabaseName("IX_StudentClasses_CurrentMembership")
             .IsUnique()
             .HasFilter("\"EndDate\" IS NULL AND \"IsDeleted\" = 0");
+
+        modelBuilder.Entity<Lesson>()
+            .HasOne(lesson => lesson.SoccerClass)
+            .WithMany(soccerClass => soccerClass.Lessons)
+            .HasForeignKey(lesson => lesson.ClassId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Lesson>()
+            .HasIndex(lesson => new
+            {
+                lesson.ClassId,
+                lesson.LessonDate,
+                lesson.StartTime
+            })
+            .HasDatabaseName("IX_Lessons_ClassDateStartTime")
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = 0");
     }
 }

@@ -22,6 +22,13 @@
                class="btn btn-success">
                 生徒を所属させる
             </a>
+
+            <a asp-controller="Lessons"
+               asp-action="Create"
+               asp-route-classId="@soccerClass.Id"
+               class="btn btn-info">
+                練習予定を登録
+            </a>
         }
 
         <a asp-action="Edit"
@@ -153,6 +160,98 @@
                 @soccerClass.UpdatedAt.ToString("yyyy年M月d日 HH:mm")
             </dd>
         </dl>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header
+        d-flex
+        justify-content-between
+        align-items-center">
+
+        <span>
+            今後の練習予定
+        </span>
+
+        <a asp-controller="Lessons"
+           asp-action="Index"
+           class="btn btn-outline-secondary btn-sm">
+            練習予定一覧へ
+        </a>
+    </div>
+
+    <div class="card-body">
+        @if (Model.UpcomingLessons.Count == 0)
+        {
+            <p class="text-muted mb-0">
+                今後の練習予定は登録されていません。
+            </p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table
+                    table-bordered
+                    align-middle
+                    mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>開催日</th>
+                            <th>時間</th>
+                            <th>会場</th>
+                            <th>担当者</th>
+                            <th>開催状況</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var lesson
+                            in Model.UpcomingLessons)
+                        {
+                            <tr>
+                                <td>
+                                    @lesson.LessonDate.ToString(
+                                        "yyyy年M月d日")
+                                </td>
+
+                                <td>
+                                    @lesson.StartTime.ToString(
+                                        @"hh\:mm")
+                                    ～
+                                    @lesson.EndTime.ToString(
+                                        @"hh\:mm")
+                                </td>
+
+                                <td>
+                                    @lesson.VenueName
+                                </td>
+
+                                <td>
+                                    @lesson.CoachName
+                                </td>
+
+                                <td>
+                                    @lesson.Status
+                                </td>
+
+                                <td>
+                                    <a asp-controller="Lessons"
+                                       asp-action="Edit"
+                                       asp-route-id="@lesson.Id"
+                                       class="btn
+                                        btn-outline-secondary
+                                        btn-sm">
+                                        編集
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </div>
 

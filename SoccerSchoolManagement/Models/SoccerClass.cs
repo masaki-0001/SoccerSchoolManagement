@@ -43,6 +43,7 @@ public class SoccerClass
     [StringLength(100,ErrorMessage = "備考は100文字以内で入力してください。")]
     public string? Note { get; set; }
 
-    public ICollection<StudentClass> StudentClasses { get; set; }
-        = new List<StudentClass>();
+    public ICollection<StudentClass> StudentClasses { get; set; } = new List<StudentClass>();
+
+    public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 }

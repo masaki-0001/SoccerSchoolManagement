@@ -1,0 +1,162 @@
+﻿@model SoccerSchoolManagement.ViewModels.Lessons.LessonIndexViewModel
+
+@{
+    ViewData["Title"] = "練習予定一覧";
+
+    var hasPreviousMonth =
+        !(Model.Year == 1 && Model.Month == 1);
+
+    var previousYear = Model.Month == 1
+        ? Model.Year - 1
+        : Model.Year;
+
+    var previousMonth = Model.Month == 1
+        ? 12
+        : Model.Month - 1;
+
+    var hasNextMonth =
+        !(Model.Year == 9999 && Model.Month == 12);
+
+    var nextYear = Model.Month == 12
+        ? Model.Year + 1
+        : Model.Year;
+
+    var nextMonth = Model.Month == 12
+        ? 1
+        : Model.Month + 1;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">練習予定一覧</h1>
+
+    <a asp-action="Create"
+       class="btn btn-primary">
+        新規予定登録
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex flex-wrap gap-2">
+                @if (hasPreviousMonth)
+                {
+                    <a asp-action="Index"
+                       asp-route-year="@previousYear"
+                       asp-route-month="@previousMonth"
+                       class="btn btn-outline-secondary">
+                        前月
+                    </a>
+                }
+                else
+                {
+                    <span class="btn btn-outline-secondary disabled">
+                        前月
+                    </span>
+                }
+
+                <a asp-action="Index"
+                   asp-route-year="@DateTime.Today.Year"
+                   asp-route-month="@DateTime.Today.Month"
+                   class="btn btn-outline-secondary">
+                    今月
+                </a>
+
+                @if (hasNextMonth)
+                {
+                    <a asp-action="Index"
+                       asp-route-year="@nextYear"
+                       asp-route-month="@nextMonth"
+                       class="btn btn-outline-secondary">
+                        次月
+                    </a>
+                }
+                else
+                {
+                    <span class="btn btn-outline-secondary disabled">
+                        次月
+                    </span>
+                }
+            </div>
+
+            <h2 class="h4 mb-0">
+                @(Model.Year)年 @(Model.Month)月
+            </h2>
+        </div>
+    </div>
+</div>
+
+@if (Model.Lessons.Count == 0)
+{
+    <div class="alert alert-info">
+        この月の練習予定は登録されていません。
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>開催日</th>
+                    <th>クラス</th>
+                    <th>対象学年</th>
+                    <th>時間</th>
+                    <th>会場</th>
+                    <th>担当者</th>
+                    <th>開催状況</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var lesson in Model.Lessons)
+                {
+                    <tr>
+                        <td>
+                            @lesson.LessonDate.ToString("M月d日")
+                        </td>
+
+                        <td>
+                            <a asp-controller="Classes"
+                               asp-action="Details"
+                               asp-route-id="@lesson.ClassId">
+                                @lesson.SoccerClass.Name
+                            </a>
+                        </td>
+
+                        <td>
+                            @lesson.SoccerClass.TargetGrade
+                        </td>
+
+                        <td>
+                            @lesson.StartTime.ToString(@"hh\:mm")
+                            ～
+                            @lesson.EndTime.ToString(@"hh\:mm")
+                        </td>
+
+                        <td>
+                            @lesson.VenueName
+                        </td>
+
+                        <td>
+                            @lesson.CoachName
+                        </td>
+
+                        <td>
+                            @lesson.Status
+                        </td>
+
+                        <td>
+                            <a asp-action="Edit"
+                               asp-route-id="@lesson.Id"
+                               class="btn btn-outline-secondary btn-sm">
+                                編集
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

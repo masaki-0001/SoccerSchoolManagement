@@ -55,9 +55,26 @@ public class ClassesController : Controller
                 studentClass.ClassId == id.Value
                 && !studentClass.IsDeleted
                 && !studentClass.Student.IsDeleted)
-            .Include(studentClass => studentClass.Student)
+            .Include(studentClass =>
+                studentClass.Student)
             .AsNoTracking()
             .ToListAsync();
+
+        var upcomingLessons = await _context.Lessons
+            .Where(lesson =>
+                lesson.ClassId == id.Value
+                && !lesson.IsDeleted
+                && lesson.LessonDate >= DateTime.Today)
+            .AsNoTracking()
+            .ToListAsync();
+
+        upcomingLessons = upcomingLessons
+            .OrderBy(lesson =>
+                lesson.LessonDate)
+            .ThenBy(lesson =>
+                lesson.StartTime)
+            .Take(5)
+            .ToList();
 
         var model = new SoccerClassDetailsViewModel
         {
@@ -79,7 +96,9 @@ public class ClassesController : Controller
                     studentClass.EndDate)
                 .ThenBy(studentClass =>
                     studentClass.Student.Kana)
-                .ToList()
+                .ToList(),
+
+            UpcomingLessons = upcomingLessons
         };
 
         return View(model);
@@ -198,9 +217,7 @@ public class ClassesController : Controller
 
         await _context.SaveChangesAsync();
 
-        return RedirectToAction(
-            nameof(Details),
-            new { id = soccerClass.Id });
+        return RedirectToAction(nameof(Details), new { id = soccerClass.Id });
     }
 
     [HttpGet]
@@ -226,9 +243,7 @@ public class ClassesController : Controller
         {
             TempData["ErrorMessage"] = "使用停止中のクラスには生徒を所属させられません。";
 
-            return RedirectToAction(
-                nameof(Details),
-                new { id = soccerClass.Id });
+            return RedirectToAction( nameof(Details), new { id = soccerClass.Id });
         }
 
         var model = new StudentClassCreateViewModel
@@ -269,9 +284,7 @@ public class ClassesController : Controller
         {
             TempData["ErrorMessage"] = "使用停止中のクラスには生徒を所属させられません。";
 
-            return RedirectToAction(
-                nameof(Details),
-                new { id });
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         Student? selectedStudent = null;
@@ -336,7 +349,7 @@ public class ClassesController : Controller
         }
         catch (DbUpdateException)
         {
-            ModelState.AddModelError(string.Empty,"所属情報を保存できませんでした。" + "同じ生徒が既に所属していないか確認してください。");
+            ModelState.AddModelError(string.Empty,"所属情報を保存できませんでした。同じ生徒が既に所属していないか確認してください。");
 
             await LoadStudentOptionsAsync(model);
 

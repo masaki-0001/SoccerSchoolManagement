@@ -197,9 +197,7 @@ public class StudentsController : Controller
 
         await _context.SaveChangesAsync();
 
-        return RedirectToAction(
-            nameof(Details),
-            new { id = student.Id });
+        return RedirectToAction(nameof(Details), new { id = student.Id });
     }
 
     [HttpGet]
