@@ -153,6 +153,22 @@ else
                                class="btn btn-outline-secondary btn-sm">
                                 編集
                             </a>
+
+                            @if (lesson.Status == "中止" || lesson.Status == "休講")
+                            {
+                                <span class="btn btn-outline-secondary btn-sm disabled">
+                                    出欠対象外
+                                </span>
+                            }
+                            else
+                            {
+                                <a asp-controller="Attendances"
+                                   asp-action="Edit"
+                                   asp-route-id="@lesson.Id"
+                                   class="btn btn-outline-success btn-sm">
+                                    出欠入力
+                                </a>
+                            }
                         </td>
                     </tr>
                 }

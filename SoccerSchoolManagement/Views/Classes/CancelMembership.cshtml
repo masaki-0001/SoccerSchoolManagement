@@ -1,0 +1,102 @@
+﻿@model SoccerSchoolManagement.Models.StudentClass
+
+@{
+    ViewData["Title"] = "所属取消し確認";
+}
+
+<div class="mb-4">
+    <h1>所属取消し確認</h1>
+
+    <p class="text-danger mb-0">
+        誤って登録した所属を通常画面から除外します。内容を確認してください。
+    </p>
+</div>
+
+<div class="alert alert-warning" role="alert">
+    <strong>注意：</strong>
+        正常な所属を終了する場合は、「所属終了」を使用してください。
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        取消し対象
+    </div>
+
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">
+                生徒名
+            </dt>
+
+            <dd class="col-sm-8">
+                @Model.Student.Name
+            </dd>
+
+            <dt class="col-sm-4">
+                クラス名
+            </dt>
+
+            <dd class="col-sm-8">
+                @Model.SoccerClass.Name
+            </dd>
+
+            <dt class="col-sm-4">
+                所属開始日
+            </dt>
+
+            <dd class="col-sm-8">
+                @Model.StartDate.ToString("yyyy年M月d日")
+            </dd>
+
+            <dt class="col-sm-4">
+                所属終了日
+            </dt>
+
+            <dd class="col-sm-8">
+                @if (Model.EndDate.HasValue)
+                {
+                    @Model.EndDate.Value.ToString("yyyy年M月d日")
+                }
+                else
+                {
+                    <span class="text-muted">
+                        未設定
+                    </span>
+                }
+            </dd>
+
+            <dt class="col-sm-4">
+                備考
+            </dt>
+
+            <dd class="col-sm-8">
+                @if (string.IsNullOrWhiteSpace(Model.Note))
+                {
+                    <span class="text-muted">
+                        未登録
+                    </span>
+                }
+                else
+                {
+                    @Model.Note
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="CancelMembership"
+      asp-route-id="@Model.Id"
+      method="post">
+
+    <button type="submit"
+            class="btn btn-danger">
+        誤登録を取り消す
+    </button>
+
+    <a asp-action="Details"
+       asp-route-id="@Model.ClassId"
+       class="btn btn-secondary">
+        キャンセル
+    </a>
+</form>

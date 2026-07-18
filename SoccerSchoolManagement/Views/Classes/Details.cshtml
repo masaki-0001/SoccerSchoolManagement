@@ -279,6 +279,7 @@
                             <th>在籍状況</th>
                             <th>所属開始日</th>
                             <th>備考</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
 
@@ -322,6 +323,21 @@
                                         @membership.Note
                                     }
                                 </td>
+
+                                
+                                <td>
+                                    <a asp-action="EndMembership"
+                                       asp-route-id="@membership.Id"
+                                       class="btn btn-outline-danger btn-sm">
+                                        所属終了
+                                    </a>
+
+                                    <a asp-action="CancelMembership"
+                                       asp-route-id="@membership.Id"
+                                       class="btn btn-outline-danger btn-sm">
+                                        誤登録取消し
+                                    </a>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -354,6 +370,7 @@
                             <th>所属開始日</th>
                             <th>所属終了日</th>
                             <th>備考</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
 
@@ -393,6 +410,14 @@
                                     {
                                         @membership.Note
                                     }
+                                </td>
+
+                                <td>
+                                    <a asp-action="CancelMembership"
+                                       asp-route-id="@membership.Id"
+                                       class="btn btn-outline-danger btn-sm">
+                                        誤登録取消し
+                                    </a>
                                 </td>
                             </tr>
                         }

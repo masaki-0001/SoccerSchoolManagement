@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Lesson> Lessons { get; set; }
 
+    public DbSet<Attendance> Attendances { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -58,6 +60,28 @@ public class AppDbContext : DbContext
                 lesson.StartTime
             })
             .HasDatabaseName("IX_Lessons_ClassDateStartTime")
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = 0");
+
+        modelBuilder.Entity<Attendance>()
+            .HasOne(attendance => attendance.Lesson)
+            .WithMany(lesson => lesson.Attendances)
+            .HasForeignKey(attendance => attendance.LessonId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Attendance>()
+            .HasOne(attendance => attendance.Student)
+            .WithMany(student => student.Attendances)
+            .HasForeignKey(attendance => attendance.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Attendance>()
+            .HasIndex(attendance => new
+            {
+                attendance.LessonId,
+                attendance.StudentId
+            })
+            .HasDatabaseName("IX_Attendances_LessonStudent")
             .IsUnique()
             .HasFilter("\"IsDeleted\" = 0");
     }

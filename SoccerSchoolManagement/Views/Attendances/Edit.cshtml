@@ -1,0 +1,172 @@
+﻿@model SoccerSchoolManagement.ViewModels.Attendances.AttendanceEditViewModel
+
+@{
+    ViewData["Title"] = "出欠入力";
+}
+
+@{
+    var isAttendanceDisabled = Model.LessonStatus == "中止" || Model.LessonStatus == "休講";
+}
+
+<h1>出欠入力</h1>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
+@if (isAttendanceDisabled)
+{
+    <div class="alert alert-warning">
+        この練習予定は中止または休講のため、出欠を登録・変更できません。
+    </div>
+}
+
+<div class="mb-4">
+    <h4>@Model.ClassName</h4>
+
+    <dl class="row">
+        <dt class="col-sm-2">開催日</dt>
+        <dd class="col-sm-10">
+            @Model.LessonDate.ToString("yyyy年M月d日")
+        </dd>
+
+        <dt class="col-sm-2">時間</dt>
+        <dd class="col-sm-10">
+            @Model.StartTime.ToString(@"hh\:mm")
+            ～
+            @Model.EndTime.ToString(@"hh\:mm")
+        </dd>
+
+        <dt class="col-sm-2">会場</dt>
+        <dd class="col-sm-10">
+            @Model.VenueName
+        </dd>
+
+        <dt class="col-sm-2">担当</dt>
+        <dd class="col-sm-10">
+            @Model.CoachName
+        </dd>
+
+        <dt class="col-sm-2">開催状況</dt>
+        <dd class="col-sm-10">
+            @Model.LessonStatus
+        </dd>
+    </dl>
+</div>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="LessonId" />
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger">
+    </div>
+
+    @if (Model.Students.Count == 0)
+        {
+            <div class="alert alert-info">
+                この練習予定の対象生徒はいません。
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>背番号</th>
+                            <th>氏名</th>
+                            <th>学年</th>
+                            <th>出欠状況</th>
+                            <th>欠席理由</th>
+                            <th>備考</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (var i = 0; i < Model.Students.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Model.Students[i].JerseyNumber
+                                </td>
+
+                                <td>
+                                    @Model.Students[i].StudentName
+
+                                    <div class="text-muted small">
+                                        @Model.Students[i].Kana
+                                    </div>
+
+                                    <input type="hidden"
+                                    asp-for="Students[i].StudentId" />
+                                </td>
+
+                                <td>
+                                    @Model.Students[i].Grade
+                                </td>
+
+                                <td>
+                                    <select asp-for="Students[i].Status"
+                                    class="form-select"
+                                    disabled="@isAttendanceDisabled">
+                                        <option value="未確認">未確認</option>
+                                        <option value="出席">出席</option>
+                                        <option value="欠席">欠席</option>
+                                    </select>
+
+                                    <span asp-validation-for="Students[i].Status"
+                                    class="text-danger">
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <input asp-for="Students[i].Reason"
+                                    class="form-control"
+                                    placeholder="例：体調不良"
+                                    disabled="@isAttendanceDisabled" />
+
+                                    <span asp-validation-for="Students[i].Reason"
+                                    class="text-danger">
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <input asp-for="Students[i].Note"
+                                    class="form-control"
+                                    placeholder="補足がある場合"
+                                    disabled="@isAttendanceDisabled" />
+
+                                    <span asp-validation-for="Students[i].Note"
+                                    class="text-danger">
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!isAttendanceDisabled)
+            { 
+                <button type="submit"
+                        class="btn btn-primary">
+                    登録
+            </button>
+            }
+        }
+
+    <a asp-controller="Lessons"
+       asp-action="Index"
+       asp-route-year="@Model.LessonDate.Year"
+       asp-route-month="@Model.LessonDate.Month"
+       class="btn btn-secondary">
+        練習予定一覧へ戻る
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

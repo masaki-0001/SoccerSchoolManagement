@@ -421,6 +421,56 @@ public class ClassesController : Controller
         return RedirectToAction(nameof(Details), new {id = membership.ClassId});
     }
 
+    [HttpGet]
+    public async Task<IActionResult> CancelMembership(int? id)
+    {
+        if (!id.HasValue)
+        {
+            return NotFound();
+        }
+
+        var membership = await _context.StudentClasses
+            .Include(studentClass => studentClass.Student)
+            .Include(studentClass => studentClass.SoccerClass)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(studentClass => studentClass.Id == id.Value
+                && !studentClass.IsDeleted
+                && !studentClass.Student.IsDeleted
+                && !studentClass.SoccerClass.IsDeleted);
+
+        if (membership is null)
+        {
+            return NotFound();
+        }
+
+        return View(membership);
+    }
+
+    [HttpPost]
+    [ActionName(nameof(CancelMembership))]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CancelMembershipConfirmed(int id)
+    {
+        var membership = await _context.StudentClasses
+            .FirstOrDefaultAsync(studentClass =>  studentClass.Id == id && !studentClass.IsDeleted);
+
+        if (membership is null)
+        {
+            return NotFound();
+        }
+
+        var classId = membership.ClassId;
+        var now = DateTime.Now;
+
+        membership.IsDeleted = true;
+        membership.DeletedAt = now;
+        membership.UpdatedAt = now;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Details), new { id = classId });
+    }
+
     private async Task LoadStudentOptionsAsync(StudentClassCreateViewModel model)
     {
         var currentStudentIds = await _context.StudentClasses
