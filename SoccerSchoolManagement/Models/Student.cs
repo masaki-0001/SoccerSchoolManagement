@@ -69,4 +69,6 @@ public class Student
     public ICollection<StudentClass> StudentClasses { get; set; } = new List<StudentClass>();
 
     public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
+
+    public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }

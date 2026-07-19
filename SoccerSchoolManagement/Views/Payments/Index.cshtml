@@ -1,0 +1,257 @@
+﻿@model SoccerSchoolManagement.ViewModels.Payments.PaymentIndexViewModel
+
+@{
+    ViewData["Title"] = "月謝管理";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>月謝管理</h1>
+
+    <a asp-controller="Payments"
+       asp-action="Unpaid"
+       class="btn btn-outline-danger">
+        未払い一覧
+    </a>
+</div>
+
+<section class="mb-4">
+    <h2 class="h4">対象年月</h2>
+
+    <form asp-controller="Payments"
+          asp-action="Index"
+          method="get"
+          class="row g-3 align-items-end">
+
+        <div class="col-md-3">
+            <label for="year" class="form-label">対象年</label>
+
+            <input id="year"
+                   name="year"
+                   type="number"
+                   value="@Model.Year"
+                   min="2000"
+                   max="2100"
+                   class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <label for="month" class="form-label">対象月</label>
+
+            <select id="month"
+                    name="month"
+                    class="form-select">
+
+                @for (var month = 1; month <= 12; month++)
+                {
+                    if (month == Model.Month)
+                    {
+                        <option value="@month" selected>@month 月</option>
+                    }
+                    else
+                    {
+                        <option value="@month">@month 月</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-primary">
+                表示
+            </button>
+        </div>
+    </form>
+</section>
+
+<hr />
+
+<section class="mb-5">
+    <h2 class="h4">
+        @Model.Year 年 @Model.Month 月分の月謝登録
+    </h2>
+
+    <form asp-controller="Payments"
+          asp-action="Index"
+          method="post"
+          class="row g-3">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Year" type="hidden" />
+        <input asp-for="Month" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger">
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="StudentId" class="form-label">
+                生徒
+            </label>
+
+            <select asp-for="StudentId"
+                    asp-items="Model.StudentOptions"
+                    class="form-select">
+
+                <option value="">生徒を選択してください</option>
+            </select>
+
+            <span asp-validation-for="StudentId"
+                  class="text-danger">
+            </span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="Amount" class="form-label">
+                請求額
+            </label>
+
+            <div class="input-group">
+                <input asp-for="Amount"
+                       type="number"
+                       min="0"
+                       step="1"
+                       class="form-control" />
+
+                <span class="input-group-text">円</span>
+            </div>
+
+            <span asp-validation-for="Amount"
+                  class="text-danger">
+            </span>
+        </div>
+
+        <div class="col-md-5">
+            <label asp-for="Note" class="form-label">
+                備考
+            </label>
+
+            <input asp-for="Note"
+                   class="form-control" />
+
+            <span asp-validation-for="Note"
+                  class="text-danger">
+            </span>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+                登録
+            </button>
+        </div>
+    </form>
+</section>
+
+<section>
+    <h2 class="h4">
+        @Model.Year 年 @Model.Month 月分の月謝一覧
+    </h2>
+
+    @if (Model.Payments.Count == 0)
+    {
+        <p class="text-muted">
+            この年月の月謝は登録されていません。
+        </p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>生徒名</th>
+                        <th>請求額</th>
+                        <th>支払状況</th>
+                        <th>支払日</th>
+                        <th>備考</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var payment in Model.Payments)
+                    {
+                        <tr>
+                            <td>
+                                @payment.Student.Name
+                            </td>
+
+                            <td>
+                                @payment.Amount.ToString("N0") 円
+                            </td>
+
+                            <td>
+                                @if (payment.Status == "支払済み")
+                                {
+                                    <span class="badge bg-success">
+                                        支払済み
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">
+                                        未払い
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (payment.PaidAt.HasValue)
+                                {
+                                    @payment.PaidAt.Value.ToString("yyyy/MM/dd")
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(payment.Note))
+                                {
+                                    <span>-</span>
+                                }
+                                else
+                                {
+                                    @payment.Note
+                                }
+                            </td>
+
+                            <td>
+                                <form asp-controller="Payments"
+                                      asp-action="ChangeStatus"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden" name="id" value="@payment.Id" />
+
+                                    <input type="hidden" name="year" value="@Model.Year" />
+
+                                    <input type="hidden" name="month" value="@Model.Month" />
+
+                                    @if (payment.Status == "未払い")
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            支払済みにする
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                            未払いに戻す
+                                        </button>
+                                    }
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Attendance> Attendances { get; set; }
 
+    public DbSet<Payment> Payments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -84,5 +86,26 @@ public class AppDbContext : DbContext
             .HasDatabaseName("IX_Attendances_LessonStudent")
             .IsUnique()
             .HasFilter("\"IsDeleted\" = 0");
+
+        modelBuilder.Entity<Payment>()
+            .HasOne(payment => payment.Student)
+            .WithMany(student => student.Payments)
+            .HasForeignKey(payment => payment.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Payment>()
+            .HasIndex(payment => new
+            {
+                payment.StudentId,
+                payment.TargetYear,
+                payment.TargetMonth
+            })
+            .HasDatabaseName("IX_Payments_StudentTargetYearMonth")
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = 0");
+
+        modelBuilder.Entity<Payment>()
+            .Property(payment => payment.Amount)
+            .HasPrecision(10, 0);
     }
 }
