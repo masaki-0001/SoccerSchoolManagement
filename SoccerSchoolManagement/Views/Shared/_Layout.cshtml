@@ -6,7 +6,7 @@
           content="width=device-width, initial-scale=1.0" />
 
     <title>
-        @ViewData["Title"] - サッカー教室業務管理
+        @ViewData["Title"] = サッカー教室業務管理
     </title>
 
     <script type="importmap"></script>
@@ -35,7 +35,6 @@
 
             <div class="container-fluid">
                 <a class="navbar-brand"
-                   asp-area=""
                    asp-controller="Home"
                    asp-action="Index">
                     サッカー教室業務管理
@@ -60,7 +59,6 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark"
-                               asp-area=""
                                asp-controller="Home"
                                asp-action="Index">
                                 ホーム
@@ -69,7 +67,6 @@
 
                         <li class="nav-item">
                             <a class="nav-link text-dark"
-                               asp-area=""
                                asp-controller="Students"
                                asp-action="Index">
                                 生徒管理
@@ -78,7 +75,6 @@
 
                         <li class="nav-item">
                             <a class="nav-link text-dark"
-                               asp-area=""
                                asp-controller="Classes"
                                asp-action="Index">
                                 クラス管理
@@ -87,10 +83,16 @@
 
                         <li class="nav-item">
                             <a class="nav-link text-dark"
-                               asp-area=""
                                asp-controller="Lessons"
                                asp-action="Index">
                                 練習予定
+                            </a>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-controller="Payments"
+                               asp-action="Index">
+                                月謝管理
                             </a>
                         </li>
                     </ul>
@@ -108,12 +110,6 @@
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; サッカー教室業務管理
-            -
-            <a asp-area=""
-               asp-controller="Home"
-               asp-action="Privacy">
-                Privacy
-            </a>
         </div>
     </footer>
 
