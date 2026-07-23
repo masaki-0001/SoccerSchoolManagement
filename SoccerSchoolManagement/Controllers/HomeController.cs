@@ -31,8 +31,14 @@ public class HomeController : Controller
             .Where(payment => !payment.IsDeleted && payment.Status == "未払い" && !payment.Student.IsDeleted)
             .SumAsync(payment => payment.Amount);
 
-        var todayLessons = await _context.Lessons
-            .Where(lesson =>!lesson.IsDeleted && lesson.LessonDate == today)
+        var lessonEntities = await _context.Lessons
+            .Where(lesson => !lesson.IsDeleted)
+            .Include(lesson => lesson.SoccerClass)
+            .AsNoTracking()
+            .ToListAsync();
+
+        var todayLessons = lessonEntities
+            .Where(lesson => lesson.LessonDate.Date == today)
             .Select(lesson => new DashboardLessonViewModel
             {
                 Id = lesson.Id,
@@ -43,8 +49,7 @@ public class HomeController : Controller
                 CoachName = lesson.CoachName,
                 Status = lesson.Status
             })
-            .AsNoTracking()
-            .ToListAsync();
+            .ToList();
 
         todayLessons = todayLessons
             .OrderBy(lesson => lesson.StartTime)
@@ -67,9 +72,9 @@ public class HomeController : Controller
         return View();
     }
 
-    [ResponseCache( Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View( new ErrorViewModel{RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

@@ -15,8 +15,15 @@ public class StudentsController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index(string? keyword)
+    public async Task<IActionResult> Index(string? keyword, int page = 1)
     {
+        const int pageSize = 10;
+
+        if (page < 1)
+        {
+            page = 1;
+        }
+
         var normalizedKeyword = string.IsNullOrWhiteSpace(keyword)
             ? null
             : keyword.Trim();
@@ -27,19 +34,32 @@ public class StudentsController : Controller
 
         if (normalizedKeyword is not null)
         {
-            query = query.Where(student =>
-                student.Name.Contains(normalizedKeyword)
-                || student.Kana.Contains(normalizedKeyword));
+            query = query.Where(student => student.Name.Contains(normalizedKeyword) || student.Kana.Contains(normalizedKeyword));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        if (totalPages > 0 && page > totalPages)
+        {
+            page = totalPages;
         }
 
         var students = await query
             .OrderBy(student => student.Kana)
+            .ThenBy(student => student.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         var model = new StudentIndexViewModel
         {
             Keyword = normalizedKeyword,
-            Students = students
+            Students = students,
+            CurrentPage = page,
+            TotalPages = totalPages,
+            TotalCount = totalCount
         };
 
         return View(model);

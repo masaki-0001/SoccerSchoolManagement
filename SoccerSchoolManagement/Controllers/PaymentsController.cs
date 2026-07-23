@@ -17,8 +17,15 @@ public class PaymentsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(int? year, int? month)
+    public async Task<IActionResult> Index(int? year, int? month, int page = 1)
     {
+        const int pageSize = 10;
+
+        if (page < 1)
+        {
+            page = 1;
+        }
+
         var today = DateTime.Today;
 
         var targetYear = year ?? today.Year;
@@ -29,12 +36,28 @@ public class PaymentsController : Controller
             return BadRequest();
         }
 
-        var payments = await _context.Payments
-            .Where(payment => !payment.IsDeleted && payment.TargetYear == targetYear && payment.TargetMonth == targetMonth)
+        var query = _context.Payments
+            .Where(payment => !payment.IsDeleted
+                && payment.TargetYear == targetYear
+                && payment.TargetMonth == targetMonth)
+            .AsNoTracking();
+
+        var totalCount = await query.CountAsync();
+
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        if (totalPages > 0 && page > totalPages)
+        {
+            page = totalPages;
+        }
+
+        var payments = await query
             .Include(payment => payment.Student)
             .OrderBy(payment => payment.Student.Kana)
             .ThenBy(payment => payment.Student.Name)
-            .AsNoTracking()
+            .ThenBy(payment => payment.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         var studentOptions = await _context.Students
@@ -54,7 +77,10 @@ public class PaymentsController : Controller
             Year = targetYear,
             Month = targetMonth,
             StudentOptions = studentOptions,
-            Payments = payments
+            Payments = payments,
+            CurrentPage = page,
+            TotalPages = totalPages,
+            TotalCount = totalCount
         };
 
         return View(model);
@@ -152,21 +178,49 @@ public class PaymentsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Unpaid()
+    public async Task<IActionResult> Unpaid(int page = 1)
     {
-        var payments = await _context.Payments
-            .Where(payment =>!payment.IsDeleted && payment.Status == "未払い" && !payment.Student.IsDeleted)
+        const int pageSize = 10;
+
+        if (page < 1)
+        {
+            page = 1;
+        }
+
+        var query = _context.Payments
+            .Where(payment => !payment.IsDeleted && payment.Status == "未払い" && !payment.Student.IsDeleted)
+            .AsNoTracking();
+
+        var unpaidCount = await query.CountAsync();
+
+        var totalAmount = await query
+            .SumAsync(payment => payment.Amount);
+
+        var totalPages = (int)Math.Ceiling( unpaidCount / (double)pageSize);
+
+        if (totalPages > 0 && page > totalPages)
+        {
+            page = totalPages;
+        }
+
+        var payments = await query
             .Include(payment => payment.Student)
             .OrderBy(payment => payment.TargetYear)
             .ThenBy(payment => payment.TargetMonth)
             .ThenBy(payment => payment.Student.Kana)
             .ThenBy(payment => payment.Student.Name)
-            .AsNoTracking()
+            .ThenBy(payment => payment.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
         var model = new PaymentUnpaidViewModel
         {
-            Payments = payments
+            Payments = payments,
+            UnpaidCount = unpaidCount,
+            TotalAmount = totalAmount,
+            CurrentPage = page,
+            TotalPages = totalPages
         };
 
         return View(model);

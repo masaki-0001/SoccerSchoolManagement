@@ -6,19 +6,27 @@ public class PaymentUnpaidViewModel
 {
     public List<Payment> Payments { get; set; } = new();
 
-    public int UnpaidCount
+    public int UnpaidCount { get; set; }
+
+    public decimal TotalAmount { get; set; }
+
+    public int CurrentPage { get; set; }
+
+    public int TotalPages { get; set; }
+
+    public bool HasPreviousPage
     {
         get
         {
-            return Payments.Count;
+            return CurrentPage > 1;
         }
     }
 
-    public decimal TotalAmount
+    public bool HasNextPage
     {
         get
         {
-            return Payments.Sum(payment => payment.Amount);
+            return CurrentPage < TotalPages;
         }
     }
 }
