@@ -23,11 +23,7 @@ public class LessonsController : Controller
         var targetYear = year ?? today.Year;
         var targetMonth = month ?? today.Month;
 
-        if (targetYear < 1
-            || targetYear > 9999
-            || targetMonth < 1
-            || targetMonth > 12
-            || targetYear == 9999 && targetMonth == 12)
+        if (targetYear < 2000 || targetYear > 2100 || targetMonth < 1 || targetMonth > 12)
         {
             return BadRequest();
         }
