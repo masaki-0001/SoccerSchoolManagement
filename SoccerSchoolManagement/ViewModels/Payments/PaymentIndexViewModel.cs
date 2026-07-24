@@ -26,7 +26,7 @@ public class PaymentIndexViewModel
 
     public List<Payment> Payments { get; set; } = new();
 
-    public int CurrentPage { get; set; }
+    public int CurrentPage { get; set; } = 1;
 
     public int TotalPages { get; set; }
 

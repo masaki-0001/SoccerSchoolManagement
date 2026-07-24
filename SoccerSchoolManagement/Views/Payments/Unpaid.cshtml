@@ -110,7 +110,8 @@ else
     </div>
     @if (Model.TotalPages > 1)
     {
-        <nav aria-label="未払い一覧のページ移動">
+        <nav class ="pagination-container"
+             aria-label="未払い一覧のページ移動">
             <ul class="pagination justify-content-end">
 
                 @if (Model.HasPreviousPage)

@@ -149,23 +149,24 @@
                 </table>
             </div>
 
-            @if (!isAttendanceDisabled)
-            { 
-                <button type="submit"
-                        class="btn btn-primary">
-                    登録
-            </button>
-            }
+            <div class="d-flex gap-2">
+                @if (!isAttendanceDisabled)
+                    { 
+                        <button type="submit" class="btn btn-primary">
+                                登録
+                        </button>
+                    }
+            </div>
         }
 
-    <a asp-controller="Lessons"
-       asp-action="Index"
-       asp-route-year="@Model.LessonDate.Year"
-       asp-route-month="@Model.LessonDate.Month"
-       class="btn btn-secondary">
-        練習予定一覧へ戻る
-    </a>
-</form>
+        <a asp-controller="Lessons"
+           asp-action="Index"
+           asp-route-year="@Model.LessonDate.Year"
+           asp-route-month="@Model.LessonDate.Month"
+           class="btn btn-secondary">
+            練習予定一覧へ戻る
+        </a>
+    </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

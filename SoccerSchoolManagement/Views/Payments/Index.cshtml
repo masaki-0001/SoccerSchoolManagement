@@ -79,6 +79,7 @@
 
         <input asp-for="Year" type="hidden" />
         <input asp-for="Month" type="hidden" />
+        <input asp-for="CurrentPage" type="hidden" />
 
         <div asp-validation-summary="ModelOnly"
              class="text-danger">
@@ -259,7 +260,8 @@
 
         @if (Model.TotalPages > 1)
         {
-            <nav aria-label="月謝一覧のページ移動">
+            <nav class="pagination-container"
+                 aria-label="月謝一覧のページ移動">
                 <ul class="pagination justify-content-end">
 
                     @if (Model.HasPreviousPage)

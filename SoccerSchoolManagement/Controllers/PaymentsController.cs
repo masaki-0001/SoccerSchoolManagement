@@ -90,6 +90,8 @@ public class PaymentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(PaymentIndexViewModel model)
     {
+        const int pageSize = 10;
+
         if (model.Year < 2000 || model.Year > 2100 || model.Month < 1 || model.Month > 12)
         {
             return BadRequest();
@@ -134,12 +136,28 @@ public class PaymentsController : Controller
                 .AsNoTracking()
                 .ToListAsync();
 
-            model.Payments = await _context.Payments
-                .Where(payment => !payment.IsDeleted && payment.TargetYear == model.Year && payment.TargetMonth == model.Month)
+            var query = _context.Payments
+                .Where(payment => !payment.IsDeleted
+                    && payment.TargetYear == model.Year
+                    && payment.TargetMonth == model.Month)
+                .AsNoTracking();
+
+            model.TotalCount = await query.CountAsync();
+
+            model.TotalPages = (int)Math.Ceiling(model.TotalCount / (double)pageSize);
+
+            if (model.TotalPages > 0 && model.CurrentPage > model.TotalPages)
+            {
+                model.CurrentPage = model.TotalPages;
+            }
+
+            model.Payments = await query
                 .Include(payment => payment.Student)
                 .OrderBy(payment => payment.Student.Kana)
                 .ThenBy(payment => payment.Student.Name)
-                .AsNoTracking()
+                .ThenBy(payment => payment.Id)
+                .Skip((model.CurrentPage - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             return View(model);
@@ -173,7 +191,8 @@ public class PaymentsController : Controller
             new
             {
                 year = model.Year,
-                month = model.Month
+                month = model.Month,
+                page = model.CurrentPage
             });
     }
 
@@ -228,11 +247,16 @@ public class PaymentsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangeStatus(int id,int year,int month)
+    public async Task<IActionResult> ChangeStatus(int id,int year,int month,int page = 1)
     {
         if (year < 2000 || year > 2100 || month < 1 || month > 12)
         {
             return BadRequest();
+        }
+
+        if (page < 1)
+        {
+            page = 1;
         }
 
         var payment = await _context.Payments
@@ -271,7 +295,8 @@ public class PaymentsController : Controller
             new
             {
                 year,
-                month
+                month,
+                page
             });
     }
 }
