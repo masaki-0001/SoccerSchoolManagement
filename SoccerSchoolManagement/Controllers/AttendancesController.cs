@@ -8,20 +8,28 @@ public class AttendancesController : Controller
 {
     private readonly AppDbContext _context;
 
-    private static readonly string[] ValidStatuses =
-    {
+        private static readonly string[] ValidStatuses =
+        {
         "未確認",
         "出席",
         "欠席"
-    };
+        };
 
-    public AttendancesController(AppDbContext context)
-    {
-        _context = context;
-    }
+        private static readonly string[] ValidStatusFilters =
+        {
+        "すべて",
+        "未確認",
+        "出席",
+        "欠席"
+        };
+
+        public AttendancesController(AppDbContext context)
+        {
+            _context = context;
+        }
 
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int? id, string? keyword, string statusFilter = "すべて")
     {
         if (!id.HasValue)
         {
@@ -37,14 +45,28 @@ public class AttendancesController : Controller
         {
             return NotFound();
         }
+        if (!ValidStatusFilters.Contains(statusFilter))
+        {
+            statusFilter = "すべて";
+        }
 
-        var memberships = await _context.StudentClasses
+        var membershipQuery = _context.StudentClasses
             .Include(x => x.Student)
             .Where(x => x.ClassId == lesson.ClassId
                 && !x.IsDeleted
                 && !x.Student.IsDeleted
                 && x.StartDate <= lesson.LessonDate
-                &&  (!x.EndDate.HasValue || x.EndDate >= lesson.LessonDate))
+                && (!x.EndDate.HasValue || x.EndDate >= lesson.LessonDate));
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            keyword = keyword.Trim();
+
+            membershipQuery = membershipQuery
+                .Where(x => x.Student.Name.Contains(keyword) || x.Student.Kana.Contains(keyword));
+        }
+
+        var memberships = await membershipQuery
             .OrderBy(x => x.Student.Kana)
             .ThenBy(x => x.Student.Name)
             .AsNoTracking()
@@ -65,7 +87,9 @@ public class AttendancesController : Controller
             EndTime = lesson.EndTime,
             VenueName = lesson.VenueName,
             CoachName = lesson.CoachName,
-            LessonStatus = lesson.Status
+            LessonStatus = lesson.Status,
+            Keyword = keyword,
+            StatusFilter = statusFilter
         };
 
         foreach (var membership in memberships)
@@ -84,6 +108,11 @@ public class AttendancesController : Controller
                 studentModel.Status = attendance.Status;
                 studentModel.Reason = attendance.Reason;
                 studentModel.Note = attendance.Note;
+            }
+
+            if (statusFilter != "すべて" && studentModel.Status != statusFilter)
+            {
+                continue;
             }
 
             model.Students.Add(studentModel);
@@ -105,16 +134,59 @@ public class AttendancesController : Controller
             return NotFound();
         }
 
-        var memberships = await _context.StudentClasses
+        if (!ValidStatusFilters.Contains(model.StatusFilter))
+        {
+            model.StatusFilter = "すべて";
+        }
+
+        var membershipQuery = _context.StudentClasses
             .Include(x => x.Student)
             .Where(x => x.ClassId == lesson.ClassId
-            && !x.IsDeleted
-            && !x.Student.IsDeleted
-            && x.StartDate <= lesson.LessonDate
-            && (!x.EndDate.HasValue || x.EndDate >= lesson.LessonDate))
+                && !x.IsDeleted
+                && !x.Student.IsDeleted
+                && x.StartDate <= lesson.LessonDate
+                && (!x.EndDate.HasValue
+                    || x.EndDate >= lesson.LessonDate));
+
+        if (!string.IsNullOrWhiteSpace(model.Keyword))
+        {
+            model.Keyword = model.Keyword.Trim();
+
+            membershipQuery = membershipQuery
+                .Where(x => x.Student.Name.Contains(model.Keyword)
+                    || x.Student.Kana.Contains(model.Keyword));
+        }
+
+        var memberships = await membershipQuery
             .OrderBy(x => x.Student.Kana)
             .ThenBy(x => x.Student.Name)
             .ToListAsync();
+
+        var existingAttendances = await _context.Attendances
+            .Where(x => x.LessonId == lesson.Id && !x.IsDeleted)
+            .ToDictionaryAsync(x => x.StudentId);
+
+        var attendances = await _context.Attendances
+            .Where(x => x.LessonId == lesson.Id && !x.IsDeleted)
+            .ToDictionaryAsync(x => x.StudentId);
+
+        if (model.StatusFilter != "すべて")
+        {
+            memberships = memberships
+                .Where(x =>
+                {
+                    if (existingAttendances.TryGetValue(
+                        x.StudentId,
+                        out var attendance))
+                    {
+                        return attendance.Status
+                            == model.StatusFilter;
+                    }
+
+                    return model.StatusFilter == "未確認";
+                })
+                .ToList();
+        }
 
         SetDisplayValues(model, lesson, memberships);
 
@@ -162,10 +234,6 @@ public class AttendancesController : Controller
             return View(model);
         }
 
-        var existingAttendances = await _context.Attendances
-            .Where(x => x.LessonId == lesson.Id && !x.IsDeleted)
-            .ToDictionaryAsync(x => x.StudentId);
-
         var now = DateTime.Now;
 
         foreach (var student in model.Students)
@@ -210,7 +278,8 @@ public class AttendancesController : Controller
         return RedirectToAction(nameof(Edit),
             new
             {
-                id = lesson.Id
+                id = lesson.Id,
+                keyword = model.Keyword
             });
     }
 

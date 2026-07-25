@@ -20,5 +20,9 @@ public class AttendanceEditViewModel
 
     public string LessonStatus { get; set; } = string.Empty;
 
+    public string? Keyword { get; set; }
+    
+    public string StatusFilter { get; set; } = "すべて";
+
     public List<AttendanceStudentViewModel> Students { get; set; } = new List<AttendanceStudentViewModel>();
 }
