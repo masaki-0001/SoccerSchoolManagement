@@ -15,15 +15,17 @@
 </div>
 
 <section class="mb-4">
-    <h2 class="h4">対象年月</h2>
+    <h2 class="h4">対象年月・検索条件</h2>
 
     <form asp-controller="Payments"
           asp-action="Index"
           method="get"
           class="row g-3 align-items-end">
 
-        <div class="col-md-3">
-            <label for="year" class="form-label">対象年</label>
+        <div class="col-md-2">
+            <label for="year" class="form-label">
+                対象年
+            </label>
 
             <input id="year"
                    name="year"
@@ -34,8 +36,10 @@
                    class="form-control" />
         </div>
 
-        <div class="col-md-3">
-            <label for="month" class="form-label">対象月</label>
+        <div class="col-md-2">
+            <label for="month" class="form-label">
+                対象月
+            </label>
 
             <select id="month"
                     name="month"
@@ -45,20 +49,96 @@
                 {
                     if (month == Model.Month)
                     {
-                        <option value="@month" selected>@month 月</option>
+                        <option value="@month" selected>
+                            @month 月
+                        </option>
                     }
                     else
                     {
-                        <option value="@month">@month 月</option>
+                        <option value="@month">
+                            @month 月
+                        </option>
                     }
                 }
             </select>
         </div>
 
         <div class="col-md-3">
-            <button type="submit" class="btn btn-outline-primary">
-                表示
+            <label for="keyword" class="form-label">
+                氏名・ふりがな
+            </label>
+
+            <input id="keyword"
+                   name="keyword"
+                   type="text"
+                   value="@Model.Keyword"
+                   class="form-control"
+                   placeholder="氏名またはふりがな" />
+        </div>
+
+        <div class="col-md-2">
+            <label for="statusFilter" class="form-label">
+                支払状況
+            </label>
+
+            <select id="statusFilter"
+                    name="statusFilter"
+                    class="form-select">
+
+                @if (Model.StatusFilter == "すべて")
+                {
+                    <option value="すべて" selected>
+                        すべて
+                    </option>
+                }
+                else
+                {
+                    <option value="すべて">
+                        すべて
+                    </option>
+                }
+
+                @if (Model.StatusFilter == "未払い")
+                {
+                    <option value="未払い" selected>
+                        未払い
+                    </option>
+                }
+                else
+                {
+                    <option value="未払い">
+                        未払い
+                    </option>
+                }
+
+                @if (Model.StatusFilter == "支払済み")
+                {
+                    <option value="支払済み" selected>
+                        支払済み
+                    </option>
+                }
+                else
+                {
+                    <option value="支払済み">
+                        支払済み
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <button type="submit"
+                    class="btn btn-outline-primary">
+                検索
             </button>
+
+            <a asp-controller="Payments"
+               asp-action="Index"
+               asp-route-year="@Model.Year"
+               asp-route-month="@Model.Month"
+               class="btn btn-outline-secondary">
+                クリア
+            </a>
         </div>
     </form>
 </section>
@@ -79,6 +159,8 @@
 
         <input asp-for="Year" type="hidden" />
         <input asp-for="Month" type="hidden" />
+        <input asp-for="Keyword" type="hidden" />
+        <input asp-for="StatusFilter" type="hidden" />
         <input asp-for="CurrentPage" type="hidden" />
 
         <div asp-validation-summary="ModelOnly"
@@ -236,6 +318,10 @@
 
                                     <input type="hidden" name="month" value="@Model.Month" />
 
+                                    <input type="hidden" name="keyword" value="@Model.Keyword" />
+
+                                    <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+
                                     <input type="hidden" name="page" value="@Model.CurrentPage" />
 
                                     @if (payment.Status == "未払い")
@@ -271,6 +357,8 @@
                                asp-action="Index"
                                asp-route-year="@Model.Year"
                                asp-route-month="@Model.Month"
+                               asp-route-keyword="@Model.Keyword"
+                               asp-route-statusFilter="@Model.StatusFilter"
                                asp-route-page="@(Model.CurrentPage - 1)"
                                class="page-link">
                                 ＜
@@ -306,6 +394,8 @@
                                    asp-action="Index"
                                    asp-route-year="@Model.Year"
                                    asp-route-month="@Model.Month"
+                                   asp-route-keyword="@Model.Keyword"
+                                   asp-route-statusFilter="@Model.StatusFilter"
                                    asp-route-page="@pageNumber"
                                    class="page-link">
                                     @pageNumber
@@ -321,6 +411,8 @@
                                asp-action="Index"
                                asp-route-year="@Model.Year"
                                asp-route-month="@Model.Month"
+                               asp-route-keyword="@Model.Keyword"
+                               asp-route-statusFilter="@Model.StatusFilter"
                                asp-route-page="@(Model.CurrentPage + 1)"
                                class="page-link">
                                 ＞

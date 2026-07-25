@@ -12,6 +12,10 @@ public class PaymentIndexViewModel
     [Range(1,12,ErrorMessage = "対象月は1月から12月の範囲で入力してください。")]
     public int Month { get; set; }
 
+    public string? Keyword { get; set; }
+
+    public string StatusFilter { get; set; } = "すべて";
+
     [Required(ErrorMessage = "生徒を選択してください。")]
     public int? StudentId { get; set; }
 

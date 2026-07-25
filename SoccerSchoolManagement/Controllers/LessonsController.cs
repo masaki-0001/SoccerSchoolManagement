@@ -285,7 +285,7 @@ public class LessonsController : Controller
                 year = lesson.LessonDate.Year,
                 month = lesson.LessonDate.Month
             });
-    }
+        }
 
     private async Task<List<SelectListItem>>LoadClassOptionsAsync(int? includedClassId = null)
     {
@@ -310,7 +310,6 @@ public class LessonsController : Controller
             .Select(soccerClass => new SelectListItem
                 {
                     Value = soccerClass.Id.ToString(),
-
                     Text = soccerClass.IsActive
                         ? soccerClass.Name
                         : $"{soccerClass.Name}" + "（使用停止）"

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SoccerSchoolManagement.Data;
 using SoccerSchoolManagement.Models;
 using SoccerSchoolManagement.ViewModels.Payments;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SoccerSchoolManagement.Controllers;
 
@@ -11,13 +12,20 @@ public class PaymentsController : Controller
 {
     private readonly AppDbContext _context;
 
+    private static readonly string[] ValidStatusFilters =
+    {
+        "すべて",
+        "未払い",
+        "支払済み"
+    };
+
     public PaymentsController(AppDbContext context)
     {
         _context = context;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(int? year, int? month, int page = 1)
+    public async Task<IActionResult> Index(int? year, int? month, string? keyword, string statusFilter = "すべて", int page = 1)
     {
         const int pageSize = 10;
 
@@ -36,11 +44,28 @@ public class PaymentsController : Controller
             return BadRequest();
         }
 
+        if (!ValidStatusFilters.Contains(statusFilter))
+        {
+            statusFilter = "すべて";
+        }
+
         var query = _context.Payments
             .Where(payment => !payment.IsDeleted
                 && payment.TargetYear == targetYear
                 && payment.TargetMonth == targetMonth)
             .AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            keyword = keyword.Trim();
+
+            query = query.Where(payment => payment.Student.Name.Contains(keyword) || payment.Student.Kana.Contains(keyword));
+        }
+
+        if (statusFilter != "すべて")
+        {
+            query = query.Where(payment => payment.Status == statusFilter);
+        }
 
         var totalCount = await query.CountAsync();
 
@@ -76,6 +101,8 @@ public class PaymentsController : Controller
         {
             Year = targetYear,
             Month = targetMonth,
+            Keyword = keyword,
+            StatusFilter = statusFilter,
             StudentOptions = studentOptions,
             Payments = payments,
             CurrentPage = page,
@@ -95,6 +122,25 @@ public class PaymentsController : Controller
         if (model.Year < 2000 || model.Year > 2100 || model.Month < 1 || model.Month > 12)
         {
             return BadRequest();
+        }
+
+        if (!ValidStatusFilters.Contains(model.StatusFilter))
+        {
+            model.StatusFilter = "すべて";
+        }
+
+        if (string.IsNullOrWhiteSpace(model.Keyword))
+        {
+            model.Keyword = null;
+        }
+        else
+        {
+            model.Keyword = model.Keyword.Trim();
+        }
+
+        if (model.CurrentPage < 1)
+        {
+            model.CurrentPage = 1;
         }
 
         if (ModelState.IsValid)
@@ -137,10 +183,18 @@ public class PaymentsController : Controller
                 .ToListAsync();
 
             var query = _context.Payments
-                .Where(payment => !payment.IsDeleted
-                    && payment.TargetYear == model.Year
-                    && payment.TargetMonth == model.Month)
+                .Where(payment => !payment.IsDeleted && payment.TargetYear == model.Year && payment.TargetMonth == model.Month)
                 .AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(model.Keyword))
+            {
+                query = query.Where(payment => payment.Student.Name.Contains(model.Keyword) || payment.Student.Kana.Contains(model.Keyword));
+            }
+
+            if (model.StatusFilter != "すべて")
+            {
+                query = query.Where(payment => payment.Status == model.StatusFilter);
+            }
 
             model.TotalCount = await query.CountAsync();
 
@@ -192,6 +246,8 @@ public class PaymentsController : Controller
             {
                 year = model.Year,
                 month = model.Month,
+                keyword = model.Keyword,
+                statusFilter = model.StatusFilter,
                 page = model.CurrentPage
             });
     }
@@ -247,7 +303,7 @@ public class PaymentsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangeStatus(int id,int year,int month,int page = 1)
+    public async Task<IActionResult> ChangeStatus(int id,int year,int month, string? keyword, string statusFilter = "すべて", int page = 1)
     {
         if (year < 2000 || year > 2100 || month < 1 || month > 12)
         {
@@ -257,6 +313,20 @@ public class PaymentsController : Controller
         if (page < 1)
         {
             page = 1;
+        }
+
+        if (!ValidStatusFilters.Contains(statusFilter))
+        {
+            statusFilter = "すべて";
+        }
+
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            keyword = null;
+        }
+        else
+        {
+            keyword = keyword.Trim();
         }
 
         var payment = await _context.Payments
@@ -291,11 +361,14 @@ public class PaymentsController : Controller
 
         await _context.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Index),
+        return RedirectToAction(
+            nameof(Index),
             new
             {
                 year,
                 month,
+                keyword,
+                statusFilter,
                 page
             });
     }

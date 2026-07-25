@@ -335,141 +335,141 @@ public class ClassesController : Controller
         }
 
         return RedirectToAction(nameof(Details), new {id});
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> EndMembership(int? id)
-    {
-        if (!id.HasValue)
-        {
-            return NotFound();
         }
 
-        var membership = await _context.StudentClasses
-            .Include(studentClass => studentClass.Student)
-            .Include(studentClass => studentClass.SoccerClass)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(studentClass => studentClass.Id == id.Value
-                && !studentClass.IsDeleted
-                && !studentClass.Student.IsDeleted
-                && !studentClass.SoccerClass.IsDeleted
-                && !studentClass.EndDate.HasValue);
-
-        if (membership is null)
+        [HttpGet]
+        public async Task<IActionResult> EndMembership(int? id)
         {
-            return NotFound();
-        }
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
 
-        var model = new StudentClassEndViewModel
-        {
-            StudentClassId = membership.Id,
-            ClassId = membership.ClassId,
-            ClassName = membership.SoccerClass.Name,
-            StudentName = membership.Student.Name,
-            StartDate = membership.StartDate,
-            EndDate = DateTime.Today
-        };
+            var membership = await _context.StudentClasses
+                .Include(studentClass => studentClass.Student)
+                .Include(studentClass => studentClass.SoccerClass)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(studentClass => studentClass.Id == id.Value
+                    && !studentClass.IsDeleted
+                    && !studentClass.Student.IsDeleted
+                    && !studentClass.SoccerClass.IsDeleted
+                    && !studentClass.EndDate.HasValue);
 
-        return View(model);
-    }
+            if (membership is null)
+            {
+                return NotFound();
+            }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EndMembership(
-    int id,
-    StudentClassEndViewModel model)
-    {
-        if (id != model.StudentClassId)
-        {
-            return NotFound();
-        }
+            var model = new StudentClassEndViewModel
+            {
+                StudentClassId = membership.Id,
+                ClassId = membership.ClassId,
+                ClassName = membership.SoccerClass.Name,
+                StudentName = membership.Student.Name,
+                StartDate = membership.StartDate,
+                EndDate = DateTime.Today
+            };
 
-        var membership = await _context.StudentClasses
-            .Include(studentClass => studentClass.Student)
-            .Include(studentClass => studentClass.SoccerClass)
-            .FirstOrDefaultAsync(studentClass => studentClass.Id == id
-                && !studentClass.IsDeleted
-                && !studentClass.Student.IsDeleted
-                && !studentClass.SoccerClass.IsDeleted
-                && !studentClass.EndDate.HasValue);
-
-        if (membership is null)
-        {
-            return NotFound();
-        }
-
-        model.ClassId = membership.ClassId;
-        model.ClassName = membership.SoccerClass.Name;
-        model.StudentName = membership.Student.Name;
-        model.StartDate = membership.StartDate;
-
-        if (model.EndDate.HasValue && model.EndDate.Value.Date < membership.StartDate.Date)
-        {
-            ModelState.AddModelError(nameof(StudentClassEndViewModel.EndDate),"所属終了日は所属開始日以降にしてください。");
-        }
-
-        if (!ModelState.IsValid)
-        {
             return View(model);
         }
 
-        membership.EndDate = model.EndDate!.Value.Date;
-        membership.UpdatedAt = DateTime.Now;
-
-        await _context.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Details), new {id = membership.ClassId});
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> CancelMembership(int? id)
-    {
-        if (!id.HasValue)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EndMembership(
+        int id,
+        StudentClassEndViewModel model)
         {
-            return NotFound();
+            if (id != model.StudentClassId)
+            {
+                return NotFound();
+            }
+
+            var membership = await _context.StudentClasses
+                .Include(studentClass => studentClass.Student)
+                .Include(studentClass => studentClass.SoccerClass)
+                .FirstOrDefaultAsync(studentClass => studentClass.Id == id
+                    && !studentClass.IsDeleted
+                    && !studentClass.Student.IsDeleted
+                    && !studentClass.SoccerClass.IsDeleted
+                    && !studentClass.EndDate.HasValue);
+
+            if (membership is null)
+            {
+                return NotFound();
+            }
+
+            model.ClassId = membership.ClassId;
+            model.ClassName = membership.SoccerClass.Name;
+            model.StudentName = membership.Student.Name;
+            model.StartDate = membership.StartDate;
+
+            if (model.EndDate.HasValue && model.EndDate.Value.Date < membership.StartDate.Date)
+            {
+                ModelState.AddModelError(nameof(StudentClassEndViewModel.EndDate),"所属終了日は所属開始日以降にしてください。");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            membership.EndDate = model.EndDate!.Value.Date;
+            membership.UpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new {id = membership.ClassId});
         }
 
-        var membership = await _context.StudentClasses
-            .Include(studentClass => studentClass.Student)
-            .Include(studentClass => studentClass.SoccerClass)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(studentClass => studentClass.Id == id.Value
-                && !studentClass.IsDeleted
-                && !studentClass.Student.IsDeleted
-                && !studentClass.SoccerClass.IsDeleted);
-
-        if (membership is null)
+        [HttpGet]
+        public async Task<IActionResult> CancelMembership(int? id)
         {
-            return NotFound();
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
+
+            var membership = await _context.StudentClasses
+                .Include(studentClass => studentClass.Student)
+                .Include(studentClass => studentClass.SoccerClass)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(studentClass => studentClass.Id == id.Value
+                    && !studentClass.IsDeleted
+                    && !studentClass.Student.IsDeleted
+                    && !studentClass.SoccerClass.IsDeleted);
+
+            if (membership is null)
+            {
+                return NotFound();
+            }
+
+            return View(membership);
         }
 
-        return View(membership);
-    }
-
-    [HttpPost]
-    [ActionName(nameof(CancelMembership))]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CancelMembershipConfirmed(int id)
-    {
-        var membership = await _context.StudentClasses
-            .FirstOrDefaultAsync(studentClass =>  studentClass.Id == id && !studentClass.IsDeleted);
-
-        if (membership is null)
+        [HttpPost]
+        [ActionName(nameof(CancelMembership))]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelMembershipConfirmed(int id)
         {
-            return NotFound();
+            var membership = await _context.StudentClasses
+                .FirstOrDefaultAsync(studentClass =>  studentClass.Id == id && !studentClass.IsDeleted);
+
+            if (membership is null)
+            {
+                return NotFound();
+            }
+
+            var classId = membership.ClassId;
+            var now = DateTime.Now;
+
+            membership.IsDeleted = true;
+            membership.DeletedAt = now;
+            membership.UpdatedAt = now;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = classId });
         }
-
-        var classId = membership.ClassId;
-        var now = DateTime.Now;
-
-        membership.IsDeleted = true;
-        membership.DeletedAt = now;
-        membership.UpdatedAt = now;
-
-        await _context.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Details), new { id = classId });
-    }
 
     private async Task LoadStudentOptionsAsync(StudentClassCreateViewModel model)
     {
