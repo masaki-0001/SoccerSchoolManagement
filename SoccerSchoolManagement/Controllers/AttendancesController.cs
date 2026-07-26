@@ -166,10 +166,6 @@ public class AttendancesController : Controller
             .Where(x => x.LessonId == lesson.Id && !x.IsDeleted)
             .ToDictionaryAsync(x => x.StudentId);
 
-        var attendances = await _context.Attendances
-            .Where(x => x.LessonId == lesson.Id && !x.IsDeleted)
-            .ToDictionaryAsync(x => x.StudentId);
-
         if (model.StatusFilter != "すべて")
         {
             memberships = memberships
@@ -279,7 +275,8 @@ public class AttendancesController : Controller
             new
             {
                 id = lesson.Id,
-                keyword = model.Keyword
+                keyword = model.Keyword,
+                statusFilter = model.StatusFilter
             });
     }
 
