@@ -61,7 +61,7 @@
     <div class="card-body">
         <form asp-action="Edit"
               method="get"
-              class="row g-2 align-items-end">
+              class="row g-2 align-items-end attendance-search-form">
 
             <input type="hidden"
                    name="id"
@@ -112,14 +112,14 @@
                 </select>
             </div>
 
-            <div class="col-auto">
+            <div class="col-auto attendance-search-button">
                 <button type="submit"
                         class="btn btn-primary">
                     検索
                 </button>
             </div>
 
-            <div class="col-auto">
+            <div class="col-auto attendance-search-button">
                 <a asp-action="Edit"
                    asp-route-id="@Model.LessonId"
                    class="btn btn-outline-secondary">
@@ -158,16 +158,16 @@
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+        <div class="table-responsive attendance-table-wrapper">
+            <table class="table table-bordered align-middle attendance-edit-table">
                 <thead>
                     <tr>
-                        <th>背番号</th>
-                        <th>氏名</th>
-                        <th>学年</th>
-                        <th>出欠状況</th>
-                        <th>欠席理由</th>
-                        <th>備考</th>
+                        <th class="attendance-number-column">背番号</th>
+                        <th class="attendance-name-column">氏名</th>
+                        <th class="attendance-grade-column">学年</th>
+                        <th class="attendance-status-column">出欠状況</th>
+                        <th class="attendance-reasonr-column">欠席理由</th>
+                        <th class="attendance-note-column">備考</th>
                     </tr>
                 </thead>
 
@@ -175,26 +175,25 @@
                     @for (var i = 0; i < Model.Students.Count; i++)
                     {
                         <tr>
-                            <td>
+                            <td class="attendance-number-column">
                                 @Model.Students[i].JerseyNumber
                             </td>
 
-                            <td>
+                            <td class="attendance-name-column">
                                 @Model.Students[i].StudentName
 
                                 <div class="text-muted small">
                                     @Model.Students[i].Kana
                                 </div>
 
-                                <input type="hidden"
-                                       asp-for="Students[i].StudentId" />
+                                <input type="hidden" asp-for="Students[i].StudentId" />
                             </td>
 
-                            <td>
+                            <td class="attendance-grade-column">
                                 @Model.Students[i].Grade
                             </td>
 
-                            <td>
+                            <td class="attendance-status-column">
                                 <select asp-for="Students[i].Status"
                                         class="form-select"
                                         disabled="@isAttendanceDisabled">
@@ -208,7 +207,7 @@
                                 </span>
                             </td>
 
-                            <td>
+                            <td class="attendance-reason-column">
                                 <input asp-for="Students[i].Reason"
                                        class="form-control"
                                        placeholder="例：体調不良"
@@ -219,7 +218,7 @@
                                 </span>
                             </td>
 
-                            <td>
+                            <td class="attendance-note-column">
                                 <input asp-for="Students[i].Note"
                                        class="form-control"
                                        placeholder="補足がある場合"
@@ -236,7 +235,7 @@
         </div>
     }
 
-        <div class="d-flex gap-2 mt-3">
+    <div class="d-flex gap-2 mt-3 attendance-action-buttons">
             @if (!isAttendanceDisabled)
             {
                 <button type="submit" class="btn btn-primary">

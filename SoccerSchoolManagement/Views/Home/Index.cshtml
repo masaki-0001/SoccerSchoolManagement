@@ -74,7 +74,7 @@
                 }
                 else
                 {
-                    <div class="table-responsive">
+                    <div class="table-responsive d-none d-md-block">
                         <table class="table table-striped align-middle mb-0">
                             <thead>
                                 <tr>
@@ -134,6 +134,60 @@
                                 }
                             </tbody>
                         </table>
+                    </div>
+
+                    <div class="d-md-none dashboard-lesson-list">
+                        @foreach (var lesson in Model.TodayLessons)
+                        {
+                            <div class="dashboard-lesson-item">
+                                <div class="dashboard-lesson-item-header">
+                                    <span class="dashboard-lesson-time">
+                                        @lesson.StartTime.ToString(@"hh\:mm")
+                                        ～
+                                        @lesson.EndTime.ToString(@"hh\:mm")
+                                    </span>
+
+                                    <span class="dashboard-lesson-status">
+                                        @lesson.Status
+                                    </span>
+                                </div>
+
+                                <dl class="dashboard-lesson-details">
+                                    <div>
+                                        <dt>クラス</dt>
+                                        <dd>@lesson.ClassName</dd>
+                                    </div>
+
+                                    <div>
+                                        <dt>会場</dt>
+                                        <dd>@lesson.VenueName</dd>
+                                    </div>
+
+                                    <div>
+                                        <dt>担当者</dt>
+                                        <dd>@lesson.CoachName</dd>
+                                    </div>
+                                </dl>
+
+                                <div class="dashboard-lesson-action">
+                                    @if (lesson.Status == "中止" || lesson.Status == "休講")
+                                    {
+                                        <span class="text-muted">
+                                            出欠登録対象外
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Attendances"
+                                           asp-action="Edit"
+                                           asp-route-id="@lesson.Id"
+                                           class="btn btn-outline-primary">
+                                            出欠登録
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
             </div>

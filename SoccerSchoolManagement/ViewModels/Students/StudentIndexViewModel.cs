@@ -6,6 +6,10 @@ public class StudentIndexViewModel
 {
     public string? Keyword { get; set; }
 
+    public string GradeFilter { get; set; } = "すべて";
+
+    public string StatusFilter { get; set; } = "すべて";
+
     public List<Student> Students { get; set; } = new();
 
     public int CurrentPage { get; set; }

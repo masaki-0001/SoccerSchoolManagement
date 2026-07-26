@@ -1,4 +1,5 @@
-﻿@model SoccerSchoolManagement.ViewModels.Students.StudentIndexViewModel
+﻿@using SoccerSchoolManagement.ViewModels.Students
+@model StudentIndexViewModel
 
 @{
     ViewData["Title"] = "生徒一覧";
@@ -13,13 +14,10 @@
     </a>
 </div>
 
-<form asp-action="Index"
-      method="get"
-      class="row g-2 align-items-end mb-4">
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-4">
 
-    <div class="col-md-6">
-        <label for="keyword"
-               class="form-label">
+    <div class="col-lg-4 col-md-6">
+        <label for="keyword" class="form-label">
             氏名・ふりがな
         </label>
 
@@ -31,14 +29,54 @@
                placeholder="氏名またはふりがなを入力してください" />
     </div>
 
-    <div class="col-md-auto">
-        <button type="submit"
-                class="btn btn-primary">
+    <div class="col-lg-2 col-md-3">
+        <label for="gradeFilter" class="form-label">
+            学年
+        </label>
+
+        <select id="gradeFilter" name="gradeFilter" class="form-select">
+
+            <option value="すべて" selected="@(Model.GradeFilter == "すべて")">
+                すべて
+            </option>
+
+            @foreach (var grade in StudentFormOptions.Grades)
+            {
+                <option value="@grade" selected="@(Model.GradeFilter == grade)">
+                    @grade
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="col-lg-2 col-md-3">
+        <label for="statusFilter" class="form-label">
+            在籍状況
+        </label>
+
+        <select id="statusFilter"
+                name="statusFilter"
+                class="form-select">
+
+            <option value="すべて" selected="@(Model.StatusFilter == "すべて")">
+                すべて
+            </option>
+
+            @foreach (var status in StudentFormOptions.Statuses)
+            {
+                <option value="@status" selected="@(Model.StatusFilter == status)">
+                    @status
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="col-lg-auto col-md-12">
+        <button type="submit" class="btn btn-primary">
             検索
         </button>
 
-        <a asp-action="Index"
-           class="btn btn-outline-secondary">
+        <a asp-action="Index" class="btn btn-outline-secondary">
             条件クリア
         </a>
     </div>
@@ -46,16 +84,18 @@
 
 @if (Model.Students.Count == 0)
 {
-    @if (string.IsNullOrWhiteSpace(Model.Keyword))
+    var hasSearchCondition = !string.IsNullOrWhiteSpace(Model.Keyword) || Model.GradeFilter != "すべて" || Model.StatusFilter != "すべて";
+
+    if (hasSearchCondition)
     {
-        <div class="alert alert-info">
-            登録されている生徒はいません。
+        <div class="alert alert-warning">
+            検索条件に一致する生徒はいません。
         </div>
     }
     else
     {
-        <div class="alert alert-warning">
-            「@Model.Keyword」に一致する生徒はいません。
+        <div class="alert alert-info">
+            登録されている生徒はいません。
         </div>
     }
 }
@@ -92,18 +132,30 @@ else
                             <div class="d-flex flex-wrap gap-1">
                                 <a asp-action="Details"
                                    asp-route-id="@student.Id"
+                                   asp-route-keyword="@Model.Keyword"
+                                   asp-route-gradeFilter="@Model.GradeFilter"
+                                   asp-route-statusFilter="@Model.StatusFilter"
+                                   asp-route-page="@Model.CurrentPage"
                                    class="btn btn-outline-primary btn-sm">
                                     詳細
                                 </a>
 
                                 <a asp-action="Edit"
                                    asp-route-id="@student.Id"
+                                   asp-route-keyword="@Model.Keyword"
+                                   asp-route-gradeFilter="@Model.GradeFilter"
+                                   asp-route-statusFilter="@Model.StatusFilter"
+                                   asp-route-page="@Model.CurrentPage"
                                    class="btn btn-outline-secondary btn-sm">
                                     編集
                                 </a>
 
                                 <a asp-action="Delete"
                                    asp-route-id="@student.Id"
+                                   asp-route-keyword="@Model.Keyword"
+                                   asp-route-gradeFilter="@Model.GradeFilter"
+                                   asp-route-statusFilter="@Model.StatusFilter"
+                                   asp-route-page="@Model.CurrentPage"
                                    class="btn btn-outline-danger btn-sm">
                                     削除
                                 </a>
@@ -117,8 +169,7 @@ else
 
     @if (Model.TotalPages > 1)
     {
-        <nav class="pagination-container"
-             aria-label="生徒一覧のページ移動">
+        <nav aria-label="生徒一覧のページ移動">
             <ul class="pagination justify-content-end">
 
                 @if (Model.HasPreviousPage)
@@ -126,6 +177,8 @@ else
                     <li class="page-item">
                         <a asp-action="Index"
                            asp-route-keyword="@Model.Keyword"
+                           asp-route-gradeFilter="@Model.GradeFilter"
+                           asp-route-statusFilter="@Model.StatusFilter"
                            asp-route-page="@(Model.CurrentPage - 1)"
                            class="page-link">
                             ＜
@@ -141,14 +194,11 @@ else
                     </li>
                 }
 
-                @for (var pageNumber = 1;
-                      pageNumber <= Model.TotalPages;
-                      pageNumber++)
+                @for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
                 {
                     if (pageNumber == Model.CurrentPage)
                     {
-                        <li class="page-item active"
-                            aria-current="page">
+                        <li class="page-item active" aria-current="page">
                             <span class="page-link">
                                 @pageNumber
                             </span>
@@ -159,6 +209,8 @@ else
                         <li class="page-item">
                             <a asp-action="Index"
                                asp-route-keyword="@Model.Keyword"
+                               asp-route-gradeFilter="@Model.GradeFilter"
+                               asp-route-statusFilter="@Model.StatusFilter"
                                asp-route-page="@pageNumber"
                                class="page-link">
                                 @pageNumber
@@ -172,6 +224,8 @@ else
                     <li class="page-item">
                         <a asp-action="Index"
                            asp-route-keyword="@Model.Keyword"
+                           asp-route-gradeFilter="@Model.GradeFilter"
+                           asp-route-statusFilter="@Model.StatusFilter"
                            asp-route-page="@(Model.CurrentPage + 1)"
                            class="page-link">
                             ＞

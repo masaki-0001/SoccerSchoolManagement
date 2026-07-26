@@ -15,7 +15,7 @@ public class StudentsController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index(string? keyword, int page = 1)
+    public async Task<IActionResult> Index(string? keyword, string gradeFilter = "すべて", string statusFilter = "すべて", int page = 1)
     {
         const int pageSize = 10;
 
@@ -28,6 +28,16 @@ public class StudentsController : Controller
             ? null
             : keyword.Trim();
 
+        if (gradeFilter != "すべて" && !StudentFormOptions.Grades.Contains(gradeFilter))
+        {
+            gradeFilter = "すべて";
+        }
+
+        if (statusFilter != "すべて" && !StudentFormOptions.Statuses.Contains(statusFilter))
+        {
+            statusFilter = "すべて";
+        }
+
         var query = _context.Students
             .Where(student => !student.IsDeleted)
             .AsNoTracking();
@@ -35,6 +45,16 @@ public class StudentsController : Controller
         if (normalizedKeyword is not null)
         {
             query = query.Where(student => student.Name.Contains(normalizedKeyword) || student.Kana.Contains(normalizedKeyword));
+        }
+
+        if (gradeFilter != "すべて")
+        {
+            query = query.Where(student => student.Grade == gradeFilter);
+        }
+
+        if (statusFilter != "すべて")
+        {
+            query = query.Where(student => student.Status == statusFilter);
         }
 
         var totalCount = await query.CountAsync();
@@ -56,6 +76,8 @@ public class StudentsController : Controller
         var model = new StudentIndexViewModel
         {
             Keyword = normalizedKeyword,
+            GradeFilter = gradeFilter,
+            StatusFilter = statusFilter,
             Students = students,
             CurrentPage = page,
             TotalPages = totalPages,

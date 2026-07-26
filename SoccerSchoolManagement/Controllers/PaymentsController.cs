@@ -50,9 +50,7 @@ public class PaymentsController : Controller
         }
 
         var query = _context.Payments
-            .Where(payment => !payment.IsDeleted
-                && payment.TargetYear == targetYear
-                && payment.TargetMonth == targetMonth)
+            .Where(payment => !payment.IsDeleted && payment.TargetYear == targetYear && payment.TargetMonth == targetMonth)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(keyword))
@@ -157,10 +155,7 @@ public class PaymentsController : Controller
         if (ModelState.IsValid)
         {
             var paymentExists = await _context.Payments
-                .AnyAsync(payment => !payment.IsDeleted
-                    && payment.StudentId == model.StudentId
-                    && payment.TargetYear == model.Year
-                    && payment.TargetMonth == model.Month);
+                .AnyAsync(payment => !payment.IsDeleted && payment.StudentId == model.StudentId && payment.TargetYear == model.Year && payment.TargetMonth == model.Month);
 
             if (paymentExists)
             {

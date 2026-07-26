@@ -33,9 +33,7 @@ public class LessonsController : Controller
         var endDate = startDate.AddMonths(1);
 
         var lessons = await _context.Lessons
-            .Where(lesson => !lesson.IsDeleted
-                && lesson.LessonDate >= startDate
-                && lesson.LessonDate < endDate)
+            .Where(lesson => !lesson.IsDeleted && lesson.LessonDate >= startDate && lesson.LessonDate < endDate)
             .Include(lesson => lesson.SoccerClass)
             .AsNoTracking()
             .ToListAsync();
@@ -65,9 +63,7 @@ public class LessonsController : Controller
         {
             var soccerClass = await _context.Classes
                 .AsNoTracking()
-                .FirstOrDefaultAsync(soccerClass => soccerClass.Id == classId.Value
-                    && !soccerClass.IsDeleted
-                    && soccerClass.IsActive);
+                .FirstOrDefaultAsync(soccerClass => soccerClass.Id == classId.Value && !soccerClass.IsDeleted && soccerClass.IsActive);
 
             if (soccerClass is null)
             {
@@ -93,9 +89,7 @@ public class LessonsController : Controller
         if (model.ClassId.HasValue)
         {
             var classExists = await _context.Classes
-                .AnyAsync(soccerClass => soccerClass.Id == model.ClassId.Value
-                    && !soccerClass.IsDeleted
-                    && soccerClass.IsActive);
+                .AnyAsync(soccerClass => soccerClass.Id == model.ClassId.Value && !soccerClass.IsDeleted && soccerClass.IsActive);
 
             if (!classExists)
             {

@@ -41,8 +41,7 @@ public class ClassesController : Controller
 
         var soccerClass = await _context.Classes
             .AsNoTracking()
-            .FirstOrDefaultAsync(soccerClass => soccerClass.Id == id.Value
-                && !soccerClass.IsDeleted);
+            .FirstOrDefaultAsync(soccerClass => soccerClass.Id == id.Value && !soccerClass.IsDeleted);
 
         if (soccerClass is null)
         {
@@ -50,17 +49,13 @@ public class ClassesController : Controller
         }
 
         var memberships = await _context.StudentClasses
-            .Where(studentClass => studentClass.ClassId == id.Value
-                && !studentClass.IsDeleted
-                && !studentClass.Student.IsDeleted)
+            .Where(studentClass => studentClass.ClassId == id.Value && !studentClass.IsDeleted && !studentClass.Student.IsDeleted)
             .Include(studentClass => studentClass.Student)
             .AsNoTracking()
             .ToListAsync();
 
         var upcomingLessons = await _context.Lessons
-            .Where(lesson => lesson.ClassId == id.Value
-                && !lesson.IsDeleted
-                && lesson.LessonDate >= DateTime.Today)
+            .Where(lesson => lesson.ClassId == id.Value && !lesson.IsDeleted && lesson.LessonDate >= DateTime.Today)
             .AsNoTracking()
             .ToListAsync();
 
@@ -273,9 +268,7 @@ public class ClassesController : Controller
         {
             selectedStudent = await _context.Students
                 .AsNoTracking()
-                .FirstOrDefaultAsync(student => student.Id == model.StudentId.Value
-                    && !student.IsDeleted 
-                    && student.Status != "退会済み");
+                .FirstOrDefaultAsync(student => student.Id == model.StudentId.Value && !student.IsDeleted  && student.Status != "退会済み");
 
             if (selectedStudent is null)
             {
@@ -474,17 +467,13 @@ public class ClassesController : Controller
     private async Task LoadStudentOptionsAsync(StudentClassCreateViewModel model)
     {
         var currentStudentIds = await _context.StudentClasses
-            .Where(studentClass => studentClass.ClassId == model.ClassId
-                && !studentClass.IsDeleted
-                && !studentClass.EndDate.HasValue)
+            .Where(studentClass => studentClass.ClassId == model.ClassId && !studentClass.IsDeleted && !studentClass.EndDate.HasValue)
             .Select(studentClass =>
                 studentClass.StudentId)
             .ToListAsync();
 
         var students = await _context.Students
-            .Where(student => !student.IsDeleted
-                && student.Status != "退会済み"
-                && !currentStudentIds.Contains(student.Id))
+            .Where(student => !student.IsDeleted && student.Status != "退会済み" && !currentStudentIds.Contains(student.Id))
             .AsNoTracking()
             .OrderBy(student => student.Kana)
             .ThenBy(student => student.Name)

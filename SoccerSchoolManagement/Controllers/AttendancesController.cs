@@ -172,11 +172,9 @@ public class AttendancesController : Controller
                 .Where(x =>
                 {
                     if (existingAttendances.TryGetValue(
-                        x.StudentId,
-                        out var attendance))
+                        x.StudentId, out var attendance))
                     {
-                        return attendance.Status
-                            == model.StatusFilter;
+                        return attendance.Status == model.StatusFilter;
                     }
 
                     return model.StatusFilter == "未確認";
