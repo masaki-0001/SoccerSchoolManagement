@@ -2,6 +2,12 @@
 
 @{
     ViewData["Title"] = "生徒削除確認";
+
+    var keyword = ViewData["Keyword"] as string;
+    var gradeFilter = ViewData["GradeFilter"] as string ?? "すべて";
+    var statusFilter = ViewData["StatusFilter"] as string ?? "すべて";
+    var currentPage = ViewData["Page"] is int pageValue ? pageValue : 1;
+}
 }
 
 <div class="mb-4">
@@ -47,8 +53,20 @@
 <form asp-action="Delete" method="post">
     <input asp-for="Id" type="hidden" />
 
-    <button type="submit" class="btn btn-danger">削除する</button>
-    <a asp-action="Details"
-       asp-route-id="@Model.Id"
+    <input type="hidden" name="keyword" value="@keyword" />
+
+    <input type="hidden" name="gradeFilter" value="@gradeFilter" />
+
+    <input type="hidden" name="statusFilter" value="@statusFilter" />
+
+    <input type="hidden" name="page" value="@currentPage" />
+
+    <button type="submit" class="btn btn-danger"> 削除する</button>
+
+    <a asp-action="Index"
+       asp-route-keyword="@keyword"
+       asp-route-gradeFilter="@gradeFilter"
+       asp-route-statusFilter="@statusFilter"
+       asp-route-page="@currentPage"
        class="btn btn-secondary">キャンセル</a>
 </form>

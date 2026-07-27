@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "生徒詳細";
+
+    var keyword = ViewData["Keyword"] as string;
+    var gradeFilter = ViewData["GradeFilter"] as string ?? "すべて";
+    var statusFilter = ViewData["StatusFilter"] as string ?? "すべて";
+    var currentPage = ViewData["Page"] is int pageValue ? pageValue : 1;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -13,12 +18,24 @@
     <div class="d-flex flex-wrap gap-2">
         <a asp-action="Edit"
            asp-route-id="@Model.Id"
+           asp-route-keyword="@keyword"
+           asp-route-gradeFilter="@gradeFilter"
+           asp-route-statusFilter="@statusFilter"
+           asp-route-page="@currentPage"
            class="btn btn-primary">編集</a>
         <a asp-action="Delete"
            asp-route-id="@Model.Id"
+           asp-route-keyword="@keyword"
+           asp-route-gradeFilter="@gradeFilter"
+           asp-route-statusFilter="@statusFilter"
+           asp-route-page="@currentPage"
            class="btn btn-outline-danger">削除</a>
         <a asp-action="Index"
-           class="btn btn-secondary">一覧へ戻る</a>
+           asp-route-keyword="@keyword"
+           asp-route-gradeFilter="@gradeFilter"
+           asp-route-statusFilter="@statusFilter"
+           asp-route-page="@currentPage"
+           class="btn btn-secondary">一覧へ戻る</a>    
     </div>
 </div>
 

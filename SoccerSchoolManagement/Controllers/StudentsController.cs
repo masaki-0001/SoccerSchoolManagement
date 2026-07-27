@@ -88,7 +88,12 @@ public class StudentsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(
+        int? id,
+        string? keyword,
+        string gradeFilter = "すべて",
+        string statusFilter = "すべて",
+        int page = 1)
     {
         if (!id.HasValue)
         {
@@ -97,12 +102,19 @@ public class StudentsController : Controller
 
         var student = await _context.Students
             .AsNoTracking()
-            .FirstOrDefaultAsync(student => student.Id == id.Value && !student.IsDeleted);
+            .FirstOrDefaultAsync(student =>
+                student.Id == id.Value
+                && !student.IsDeleted);
 
         if (student is null)
         {
             return NotFound();
         }
+
+        ViewData["Keyword"] = keyword;
+        ViewData["GradeFilter"] = gradeFilter;
+        ViewData["StatusFilter"] = statusFilter;
+        ViewData["Page"] = page;
 
         return View(student);
     }
@@ -153,7 +165,12 @@ public class StudentsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(
+        int? id,
+        string? keyword,
+        string gradeFilter = "すべて",
+        string statusFilter = "すべて",
+        int page = 1)
     {
         if (!id.HasValue)
         {
@@ -182,19 +199,29 @@ public class StudentsController : Controller
             Status = student.Status,
             WithdrawnAt = student.WithdrawnAt,
             GuardianName = student.GuardianName,
-            GuardianRelationship =
-                student.GuardianRelationship,
+            GuardianRelationship = student.GuardianRelationship,
             GuardianPhone = student.GuardianPhone,
             GuardianEmail = student.GuardianEmail,
             Note = student.Note
         };
+
+        ViewData["Keyword"] = keyword;
+        ViewData["GradeFilter"] = gradeFilter;
+        ViewData["StatusFilter"] = statusFilter;
+        ViewData["Page"] = page;
 
         return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id , StudentEditViewModel model)
+    public async Task<IActionResult> Edit(
+        int id,
+        StudentEditViewModel model,
+        string? keyword,
+        string gradeFilter = "すべて",
+        string statusFilter = "すべて",
+        int page = 1)
     {
         if (id != model.Id)
         {
@@ -203,6 +230,11 @@ public class StudentsController : Controller
 
         if (!ModelState.IsValid)
         {
+            ViewData["Keyword"] = keyword;
+            ViewData["GradeFilter"] = gradeFilter;
+            ViewData["StatusFilter"] = statusFilter;
+            ViewData["Page"] = page;
+
             return View(model);
         }
 
@@ -224,8 +256,7 @@ public class StudentsController : Controller
         student.Status = model.Status;
         student.WithdrawnAt = model.WithdrawnAt;
         student.GuardianName = model.GuardianName;
-        student.GuardianRelationship =
-            model.GuardianRelationship;
+        student.GuardianRelationship = model.GuardianRelationship;
         student.GuardianPhone = model.GuardianPhone;
         student.GuardianEmail = model.GuardianEmail;
         student.Note = model.Note;
@@ -233,11 +264,24 @@ public class StudentsController : Controller
 
         await _context.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Details), new { id = student.Id });
+        return RedirectToAction(
+            nameof(Index),
+            new
+            {
+                keyword,
+                gradeFilter,
+                statusFilter,
+                page
+            });
     }
 
     [HttpGet]
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(
+        int? id,
+        string? keyword,
+        string gradeFilter = "すべて",
+        string statusFilter = "すべて",
+        int page = 1)
     {
         if (!id.HasValue)
         {
@@ -253,13 +297,23 @@ public class StudentsController : Controller
             return NotFound();
         }
 
+        ViewData["Keyword"] = keyword;
+        ViewData["GradeFilter"] = gradeFilter;
+        ViewData["StatusFilter"] = statusFilter;
+        ViewData["Page"] = page;
+
         return View(student);
     }
 
     [HttpPost]
     [ActionName(nameof(Delete))]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(
+        int id,
+        string? keyword,
+        string gradeFilter = "すべて",
+        string statusFilter = "すべて",
+        int page = 1)
     {
         var student = await _context.Students
             .FirstOrDefaultAsync(student => student.Id == id && !student.IsDeleted);
@@ -277,6 +331,14 @@ public class StudentsController : Controller
 
         await _context.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(
+            nameof(Index),
+            new
+            {
+                keyword,
+                gradeFilter,
+                statusFilter,
+                page
+            });
     }
 }
