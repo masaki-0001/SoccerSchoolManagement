@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SoccerSchoolManagement.Data;
 using SoccerSchoolManagement.Models;
 using SoccerSchoolManagement.ViewModels.Students;
+using System.Text;
 
 namespace SoccerSchoolManagement.Controllers;
 
@@ -85,6 +86,105 @@ public class StudentsController : Controller
         };
 
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportCsv(
+        string? keyword,
+        string gradeFilter = "すべて",
+        string statusFilter = "すべて")
+    {
+        var normalizedKeyword = string.IsNullOrWhiteSpace(keyword) ? null : keyword.Trim();
+
+        if (gradeFilter != "すべて" && !StudentFormOptions.Grades.Contains(gradeFilter))
+        {
+            gradeFilter = "すべて";
+        }
+
+        if (statusFilter != "すべて" && !StudentFormOptions.Statuses.Contains(statusFilter))
+        {
+            statusFilter = "すべて";
+        }
+
+        var query = _context.Students
+            .Where(student => !student.IsDeleted)
+            .AsNoTracking();
+
+        if (normalizedKeyword is not null)
+        {
+            query = query.Where(student => student.Name.Contains(normalizedKeyword) || student.Kana.Contains(normalizedKeyword));
+        }
+
+        if (gradeFilter != "すべて")
+        {
+            query = query.Where(student => student.Grade == gradeFilter);
+        }
+
+        if (statusFilter != "すべて")
+        {
+            query = query.Where(student => student.Status == statusFilter);
+        }
+
+        var students = await query
+            .OrderBy(student => student.Kana)
+            .ThenBy(student => student.Id)
+            .ToListAsync();
+
+        var csv = new StringBuilder();
+
+        csv.AppendLine(
+            "\"生徒ID\","
+            + "\"氏名\","
+            + "\"ふりがな\","
+            + "\"生年月日\","
+            + "\"学年\","
+            + "\"性別\","
+            + "\"背番号\","
+            + "\"入会日\","
+            + "\"在籍状況\","
+            + "\"退会日\","
+            + "\"保護者氏名\","
+            + "\"保護者続柄\","
+            + "\"保護者電話番号\","
+            + "\"保護者メールアドレス\","
+            + "\"備考\"");
+
+        foreach (var student in students)
+        {
+            var values = new[]
+            {
+            student.Id.ToString(),
+            student.Name,
+            student.Kana,
+            student.BirthDate.ToString("yyyy/MM/dd"),
+            student.Grade,
+            student.Gender,
+            student.JerseyNumber?.ToString() ?? string.Empty,
+            student.JoinedAt.ToString("yyyy/MM/dd"),
+            student.Status,
+            student.WithdrawnAt?.ToString("yyyy/MM/dd") ?? string.Empty,
+            student.GuardianName,
+            student.GuardianRelationship,
+            FormatForExcelText(student.GuardianPhone),
+            student.GuardianEmail ?? string.Empty,
+            student.Note ?? string.Empty
+        };
+
+            csv.AppendLine( string.Join(",", values.Select(EscapeCsv)));
+        }
+
+        var encoding = new UTF8Encoding(true);
+
+        var preamble = encoding.GetPreamble();
+        var csvBytes = encoding.GetBytes(csv.ToString());
+
+        var bytes = preamble
+            .Concat(csvBytes)
+            .ToArray();
+
+        var fileName = $"生徒一覧_{DateTime.Now:yyyyMMdd}.csv";
+
+        return File( bytes, "text/csv; charset=utf-8", fileName);
     }
 
     [HttpGet]
@@ -340,5 +440,24 @@ public class StudentsController : Controller
                 statusFilter,
                 page
             });
+    }
+    private static string FormatForExcelText(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var escapedValue = value.Replace("\"", "\"\"");
+
+        return $"=\"{escapedValue}\"";
+    }
+    private static string EscapeCsv(string? value)
+    {
+        var text = value ?? string.Empty;
+
+        var escapedText = text.Replace("\"", "\"\"");
+
+        return $"\"{escapedText}\"";
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SoccerSchoolManagement.Data;
 using SoccerSchoolManagement.Models;
 using SoccerSchoolManagement.ViewModels.Payments;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Text;
 
 namespace SoccerSchoolManagement.Controllers;
 
@@ -50,7 +50,7 @@ public class PaymentsController : Controller
         }
 
         var query = _context.Payments
-            .Where(payment => !payment.IsDeleted && payment.TargetYear == targetYear && payment.TargetMonth == targetMonth)
+            .Where(payment => !payment.IsDeleted && !payment.Student.IsDeleted  && payment.TargetYear == targetYear && payment.TargetMonth == targetMonth)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(keyword))
@@ -109,6 +109,100 @@ public class PaymentsController : Controller
         };
 
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportCsv(
+        int? year,
+        int? month,
+        string? keyword,
+        string statusFilter = "すべて")
+    {
+        var today = DateTime.Today;
+
+        var targetYear = year ?? today.Year;
+        var targetMonth = month ?? today.Month;
+
+        if (targetYear < 2000 || targetYear > 2100 || targetMonth < 1 || targetMonth > 12)
+        {
+            return BadRequest();
+        }
+
+        if (!ValidStatusFilters.Contains(statusFilter))
+        {
+            statusFilter = "すべて";
+        }
+
+        var normalizedKeyword = string.IsNullOrWhiteSpace(keyword) ? null : keyword.Trim();
+
+        var query = _context.Payments
+            .Where(payment => !payment.IsDeleted
+                && !payment.Student.IsDeleted
+                && payment.TargetYear == targetYear
+                && payment.TargetMonth == targetMonth)
+            .AsNoTracking();
+
+        if (normalizedKeyword is not null)
+        {
+            query = query.Where(payment => payment.Student.Name.Contains(normalizedKeyword) || payment.Student.Kana.Contains(normalizedKeyword));
+        }
+
+        if (statusFilter != "すべて")
+        {
+            query = query.Where(payment => payment.Status == statusFilter);
+        }
+
+        var payments = await query
+            .Include(payment => payment.Student)
+            .OrderBy(payment => payment.Student.Kana)
+            .ThenBy(payment => payment.Student.Name)
+            .ThenBy(payment => payment.Id)
+            .ToListAsync();
+
+        var csv = new StringBuilder();
+
+        csv.AppendLine(
+            "\"月謝ID\","
+            + "\"対象年月\","
+            + "\"生徒ID\","
+            + "\"生徒氏名\","
+            + "\"ふりがな\","
+            + "\"請求額\","
+            + "\"支払状況\","
+            + "\"支払日\","
+            + "\"備考\"");
+
+        foreach (var payment in payments)
+        {
+            var values = new[]
+            {
+            payment.Id.ToString(),
+            $"{payment.TargetYear}年{payment.TargetMonth:D2}",
+            payment.StudentId.ToString(),
+            payment.Student.Name,
+            payment.Student.Kana,
+            payment.Amount.ToString("0"),
+            payment.Status,
+            payment.PaidAt?.ToString("yyyy/MM/dd") ?? string.Empty,
+            payment.Note ?? string.Empty
+        };
+
+            csv.AppendLine(
+                string.Join(",", values.Select(EscapeCsv)));
+        }
+
+        var encoding = new UTF8Encoding(true);
+
+        var preamble = encoding.GetPreamble();
+        var csvBytes = encoding.GetBytes(csv.ToString());
+
+        var bytes = preamble
+            .Concat(csvBytes)
+            .ToArray();
+
+        var fileName = $"月謝一覧_{targetYear}{targetMonth:D2}_{DateTime.Now:yyyyMMdd}.csv";
+
+        return File( bytes, "text/csv; charset=utf-8", fileName);
     }
 
     [HttpPost]
@@ -178,7 +272,7 @@ public class PaymentsController : Controller
                 .ToListAsync();
 
             var query = _context.Payments
-                .Where(payment => !payment.IsDeleted && payment.TargetYear == model.Year && payment.TargetMonth == model.Month)
+                .Where(payment => !payment.IsDeleted && !payment.Student.IsDeleted && payment.TargetYear == model.Year && payment.TargetMonth == model.Month)
                 .AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(model.Keyword))
@@ -366,5 +460,13 @@ public class PaymentsController : Controller
                 statusFilter,
                 page
             });
+    }
+    private static string EscapeCsv(string? value)
+    {
+        var text = value ?? string.Empty;
+
+        var escapedText = text.Replace("\"", "\"\"");
+
+        return $"\"{escapedText}\"";
     }
 }

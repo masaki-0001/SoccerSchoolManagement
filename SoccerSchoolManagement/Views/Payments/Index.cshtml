@@ -139,6 +139,15 @@
                class="btn btn-outline-secondary">
                 クリア
             </a>
+
+            <a asp-action="ExportCsv"
+               asp-route-year="@Model.Year"
+               asp-route-month="@Model.Month"
+               asp-route-keyword="@Model.Keyword"
+               asp-route-statusFilter="@Model.StatusFilter"
+               class="btn btn-success">
+                CSV出力
+            </a>
         </div>
     </form>
 </section>

@@ -79,6 +79,13 @@
         <a asp-action="Index" class="btn btn-outline-secondary">
             条件クリア
         </a>
+        <a asp-action="ExportCsv"
+           asp-route-keyword="@Model.Keyword"
+           asp-route-gradeFilter="@Model.GradeFilter"
+           asp-route-statusFilter="@Model.StatusFilter"
+           class="btn btn-success">
+           CSV出力
+        </a>
     </div>
 </form>
 
