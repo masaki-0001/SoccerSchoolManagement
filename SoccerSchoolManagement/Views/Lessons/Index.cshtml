@@ -26,7 +26,15 @@
         : Model.Month + 1;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex
+    flex-column
+    flex-sm-row
+    justify-content-sm-between
+    align-items-stretch
+    align-items-sm-center
+    gap-2
+    mb-3">
+
     <h1 class="mb-0">練習予定一覧</h1>
 
     <a asp-action="Create"
@@ -37,7 +45,14 @@
 
 <div class="card mb-3">
     <div class="card-body">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex
+            flex-column
+            flex-sm-row
+            justify-content-sm-between
+            align-items-stretch
+            align-items-sm-center
+            gap-3">
+
             <div class="d-flex flex-wrap gap-2">
                 @if (hasPreviousMonth)
                 {
@@ -79,7 +94,7 @@
                 }
             </div>
 
-            <h2 class="h4 mb-0">
+            <h2 class="h4 mb-0 text-center text-sm-end">
                 @(Model.Year)年 @(Model.Month)月
             </h2>
         </div>
@@ -148,27 +163,29 @@ else
                         </td>
 
                         <td>
-                            <a asp-action="Edit"
-                               asp-route-id="@lesson.Id"
-                               class="btn btn-outline-secondary btn-sm">
-                                編集
-                            </a>
-
-                            @if (lesson.Status == "中止" || lesson.Status == "休講")
-                            {
-                                <span class="btn btn-outline-secondary btn-sm disabled">
-                                    出欠対象外
-                                </span>
-                            }
-                            else
-                            {
-                                <a asp-controller="Attendances"
-                                   asp-action="Edit"
+                            <div class="d-flex flex-wrap gap-2">
+                                <a asp-action="Edit"
                                    asp-route-id="@lesson.Id"
-                                   class="btn btn-outline-success btn-sm">
-                                    出欠入力
+                                   class="btn btn-outline-secondary btn-sm">
+                                    編集
                                 </a>
-                            }
+
+                                @if (lesson.Status == "中止" || lesson.Status == "休講")
+                                {
+                                    <span class="btn btn-outline-secondary btn-sm disabled">
+                                        出欠対象外
+                                    </span>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Attendances"
+                                       asp-action="Edit"
+                                       asp-route-id="@lesson.Id"
+                                       class="btn btn-outline-success btn-sm">
+                                        出欠入力
+                                    </a>
+                                }
+                            </div>
                         </td>
                     </tr>
                 }

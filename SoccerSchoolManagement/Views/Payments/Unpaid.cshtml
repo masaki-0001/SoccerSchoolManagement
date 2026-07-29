@@ -4,7 +4,15 @@
     ViewData["Title"] = "未払い一覧";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex
+    flex-column
+    flex-sm-row
+    justify-content-sm-between
+    align-items-stretch
+    align-items-sm-center
+    gap-2
+    mb-4">
+
     <h1>未払い一覧</h1>
 
     <a asp-controller="Payments"
@@ -110,9 +118,9 @@ else
     </div>
     @if (Model.TotalPages > 1)
     {
-        <nav class ="pagination-container"
+        <nav class="pagination-container"
              aria-label="未払い一覧のページ移動">
-            <ul class="pagination justify-content-end">
+            <ul class="pagination  flex-wrap justify-content-center justify-content-end">
 
                 @if (Model.HasPreviousPage)
                 {
@@ -134,28 +142,41 @@ else
                     </li>
                 }
 
-                @for (var pageNumber = 1;
-                      pageNumber <= Model.TotalPages;
-                      pageNumber++)
+                @for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
                 {
-                    if (pageNumber == Model.CurrentPage)
+                    var showPageNumber = pageNumber == 1
+                        || pageNumber == Model.TotalPages
+                        || pageNumber >= Model.CurrentPage - 1
+                        && pageNumber <= Model.CurrentPage + 1;
+
+                    if (showPageNumber)
                     {
-                        <li class="page-item active"
-                            aria-current="page">
-                            <span class="page-link">
-                                @pageNumber
-                            </span>
-                        </li>
+                        if (pageNumber == Model.CurrentPage)
+                        {
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">
+                                    @pageNumber
+                                </span>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item">
+                                <a asp-controller="Payments"
+                                   asp-action="Unpaid"
+                                   asp-route-page="@pageNumber"
+                                   class="page-link">
+                                    @pageNumber
+                                </a>
+                            </li>
+                        }
                     }
-                    else
+                    else if (pageNumber == 2 || pageNumber == Model.TotalPages - 1)
                     {
-                        <li class="page-item">
-                            <a asp-controller="Payments"
-                               asp-action="Unpaid"
-                               asp-route-page="@pageNumber"
-                               class="page-link">
-                                @pageNumber
-                            </a>
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                …
+                            </span>
                         </li>
                     }
                 }

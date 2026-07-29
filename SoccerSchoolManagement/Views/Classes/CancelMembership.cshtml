@@ -89,14 +89,17 @@
       asp-route-id="@Model.Id"
       method="post">
 
-    <button type="submit"
-            class="btn btn-danger">
-        誤登録を取り消す
-    </button>
+    <div class="d-flex flex-column flex-sm-row gap-2">
 
-    <a asp-action="Details"
-       asp-route-id="@Model.ClassId"
-       class="btn btn-secondary">
-        キャンセル
-    </a>
+        <button type="submit"
+                class="btn btn-danger">
+            誤登録を取り消す
+        </button>
+
+        <a asp-action="Details"
+           asp-route-id="@Model.ClassId"
+           class="btn btn-secondary">
+            キャンセル
+        </a>
+    </div>
 </form>
