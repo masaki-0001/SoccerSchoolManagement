@@ -448,13 +448,18 @@ public class StudentsController : Controller
             return string.Empty;
         }
 
-        var escapedValue = value.Replace("\"", "\"\"");
-
-        return $"=\"{escapedValue}\"";
+        return $"'{value}";
     }
+
     private static string EscapeCsv(string? value)
     {
         var text = value ?? string.Empty;
+
+        if (text.Length > 0
+            && "=+-@\t\r\n".Contains(text[0]))
+        {
+            text = $"'{text}";
+        }
 
         var escapedText = text.Replace("\"", "\"\"");
 

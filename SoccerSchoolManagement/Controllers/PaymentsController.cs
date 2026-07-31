@@ -465,6 +465,12 @@ public class PaymentsController : Controller
     {
         var text = value ?? string.Empty;
 
+        if (text.Length > 0
+            && "=+-@\t\r\n".Contains(text[0]))
+        {
+            text = $"'{text}";
+        }
+
         var escapedText = text.Replace("\"", "\"\"");
 
         return $"\"{escapedText}\"";

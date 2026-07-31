@@ -142,10 +142,24 @@
     @if (Model.Students.Count == 0)
     {
         <div class="alert alert-info">
-            @if (string.IsNullOrWhiteSpace(Model.Keyword))
+            @if (string.IsNullOrWhiteSpace(Model.Keyword)
+                && Model.StatusFilter == "すべて")
             {
                 <span>
                     この練習予定の対象生徒はいません。
+                </span>
+            }
+            else if (!string.IsNullOrWhiteSpace(Model.Keyword)
+                && Model.StatusFilter == "すべて")
+            {
+                <span>
+                    検索キーワードに一致する生徒はいません。
+                </span>
+            }
+            else if (string.IsNullOrWhiteSpace(Model.Keyword))
+            {
+                <span>
+                    指定した出欠状況に一致する生徒はいません。
                 </span>
             }
             else

@@ -4,7 +4,7 @@
     ViewData["Title"] = "練習予定一覧";
 
     var hasPreviousMonth =
-        !(Model.Year == 1 && Model.Month == 1);
+        !(Model.Year == 2000 && Model.Month == 1);
 
     var previousYear = Model.Month == 1
         ? Model.Year - 1
@@ -15,7 +15,7 @@
         : Model.Month - 1;
 
     var hasNextMonth =
-        !(Model.Year == 9999 && Model.Month == 12);
+        !(Model.Year == 2100 && Model.Month == 12);
 
     var nextYear = Model.Month == 12
         ? Model.Year + 1

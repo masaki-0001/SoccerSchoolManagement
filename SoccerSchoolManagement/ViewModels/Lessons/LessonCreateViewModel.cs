@@ -48,6 +48,11 @@ public class LessonCreateViewModel : IValidatableObject
     public IEnumerable<ValidationResult> Validate(
         ValidationContext validationContext)
     {
+        if (LessonDate.HasValue && (LessonDate.Value.Year < 2000 || LessonDate.Value.Year > 2100))
+        {
+            yield return new ValidationResult("開催日は2000年から2100年の範囲で入力してください。", new[] { nameof(LessonDate) });
+        }
+
         if (StartTime.HasValue && EndTime.HasValue && EndTime.Value <= StartTime.Value)
         {
             yield return new ValidationResult("終了時刻は開始時刻より後にしてください。", new[] { nameof(EndTime) });
