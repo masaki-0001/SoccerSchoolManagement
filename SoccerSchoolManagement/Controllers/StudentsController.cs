@@ -234,13 +234,50 @@ public class StudentsController : Controller
             return View(model);
         }
 
+        var name = model.Name.Trim();
+        var kana = model.Kana.Trim();
+        var guardianPhone = model.GuardianPhone.Trim();
+
+        var normalizedName = RemoveSpaces(name);
+        var normalizedKana = RemoveSpaces(kana);
+
+        var existingStudents = await _context.Students
+            .Where(student => !student.IsDeleted)
+            .AsNoTracking()
+            .ToListAsync();
+
+        var existingStudent = existingStudents
+            .FirstOrDefault(student =>
+                RemoveSpaces(student.Name) == normalizedName
+                && RemoveSpaces(student.Kana) == normalizedKana
+                && student.BirthDate == model.BirthDate!.Value
+                && student.GuardianPhone.Trim() == guardianPhone);
+
+        if (existingStudent is not null)
+        {
+            if (existingStudent.Status == "退会済み")
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "同じ生徒が退会済みで登録されています。既存の生徒情報を編集して再入会してください。");
+            }
+            else
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "同じ生徒情報がすでに登録されています。");
+            }
+
+            return View(model);
+        }
+
         var now = DateTime.Now;
 
         var student = new Student
         {
-            Name = model.Name,
-            Kana = model.Kana,
-            BirthDate = model.BirthDate!.Value,
+            Name = name,
+            Kana = kana,
+            BirthDate = model.BirthDate.Value,
             Grade = model.Grade,
             Gender = model.Gender,
             JerseyNumber = model.JerseyNumber,
@@ -249,7 +286,7 @@ public class StudentsController : Controller
             WithdrawnAt = model.WithdrawnAt,
             GuardianName = model.GuardianName,
             GuardianRelationship = model.GuardianRelationship,
-            GuardianPhone = model.GuardianPhone,
+            GuardianPhone = guardianPhone,
             GuardianEmail = model.GuardianEmail,
             Note = model.Note,
             CreatedAt = now,
@@ -338,16 +375,53 @@ public class StudentsController : Controller
             return View(model);
         }
 
+        var name = model.Name.Trim();
+        var kana = model.Kana.Trim();
+        var guardianPhone = model.GuardianPhone.Trim();
+
+        var normalizedName = RemoveSpaces(name);
+        var normalizedKana = RemoveSpaces(kana);
+
+        var existingStudents = await _context.Students
+            .Where(student =>
+                !student.IsDeleted
+                && student.Id != id)
+            .AsNoTracking()
+            .ToListAsync();
+
+        var existingStudent = existingStudents
+            .FirstOrDefault(student =>
+                RemoveSpaces(student.Name) == normalizedName
+                && RemoveSpaces(student.Kana) == normalizedKana
+                && student.BirthDate == model.BirthDate!.Value
+                && student.GuardianPhone.Trim() == guardianPhone);
+
+        if (existingStudent is not null)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "同じ生徒情報がすでに登録されています。");
+
+            ViewData["Keyword"] = keyword;
+            ViewData["GradeFilter"] = gradeFilter;
+            ViewData["StatusFilter"] = statusFilter;
+            ViewData["Page"] = page;
+
+            return View(model);
+        }
+
         var student = await _context.Students
-            .FirstOrDefaultAsync(student => student.Id == id && !student.IsDeleted);
+            .FirstOrDefaultAsync(student =>
+                student.Id == id
+                && !student.IsDeleted);
 
         if (student is null)
         {
             return NotFound();
         }
 
-        student.Name = model.Name;
-        student.Kana = model.Kana;
+        student.Name = name;
+        student.Kana = kana;
         student.BirthDate = model.BirthDate!.Value;
         student.Grade = model.Grade;
         student.Gender = model.Gender;
@@ -357,7 +431,7 @@ public class StudentsController : Controller
         student.WithdrawnAt = model.WithdrawnAt;
         student.GuardianName = model.GuardianName;
         student.GuardianRelationship = model.GuardianRelationship;
-        student.GuardianPhone = model.GuardianPhone;
+        student.GuardianPhone = guardianPhone;
         student.GuardianEmail = model.GuardianEmail;
         student.Note = model.Note;
         student.UpdatedAt = DateTime.Now;
@@ -440,6 +514,12 @@ public class StudentsController : Controller
                 statusFilter,
                 page
             });
+    }
+    private static string RemoveSpaces(string value)
+    {
+        return value
+            .Replace(" ", "")
+            .Replace("　", "");
     }
     private static string FormatForExcelText(string? value)
     {
