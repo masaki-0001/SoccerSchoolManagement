@@ -154,7 +154,7 @@ section {
     border-color: #cbd3da;
 }
 
-textarea.form-control {
+.textarea.form-control {
     min-height: 120px;
 }
 
@@ -311,6 +311,10 @@ dl.row dd {
     min-width: 220px;
 }
 
+.attendance-mobile-grade {
+    display: none;
+}
+
 /* ダッシュボード */
 
 .dashboard-lesson-list {
@@ -441,6 +445,45 @@ h1 {
 
 .attendance-table-wrapper {
     -webkit-overflow-scrolling: touch;
+}
+
+.attendance-edit-table {
+    min-width: 665px;
+}
+
+.attendance-number-column {
+    width: 45px;
+    min-width: 45px;
+    padding-right: 0.3rem !important;
+    padding-left: 0.3rem !important;
+}
+
+.attendance-name-column {
+    width: 120px;
+    min-width: 120px;
+}
+
+.attendance-grade-column {
+    display: none;
+}
+
+.attendance-mobile-grade {
+    display: block;
+}
+
+.attendance-status-column {
+    width: 120px;
+    min-width: 120px;
+}
+
+.attendance-reason-column {
+    width: 180px;
+    min-width: 180px;
+}
+
+.attendance-note-column {
+    width: 200px;
+    min-width: 200px;
 }
 
 .attendance-action-buttons {

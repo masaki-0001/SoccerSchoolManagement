@@ -202,9 +202,7 @@ public class StudentsController : Controller
 
         var student = await _context.Students
             .AsNoTracking()
-            .FirstOrDefaultAsync(student =>
-                student.Id == id.Value
-                && !student.IsDeleted);
+            .FirstOrDefaultAsync(student => student.Id == id.Value && !student.IsDeleted);
 
         if (student is null)
         {
@@ -257,15 +255,11 @@ public class StudentsController : Controller
         {
             if (existingStudent.Status == "退会済み")
             {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "同じ生徒が退会済みで登録されています。既存の生徒情報を編集して再入会してください。");
+                ModelState.AddModelError(string.Empty,"同じ生徒が退会済みで登録されています。既存の生徒情報を編集して再入会してください。");
             }
             else
             {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "同じ生徒情報がすでに登録されています。");
+                ModelState.AddModelError(string.Empty,"同じ生徒情報がすでに登録されています。");
             }
 
             return View(model);
@@ -277,7 +271,7 @@ public class StudentsController : Controller
         {
             Name = name,
             Kana = kana,
-            BirthDate = model.BirthDate.Value,
+            BirthDate = model.BirthDate!.Value,
             Grade = model.Grade,
             Gender = model.Gender,
             JerseyNumber = model.JerseyNumber,
@@ -383,9 +377,7 @@ public class StudentsController : Controller
         var normalizedKana = RemoveSpaces(kana);
 
         var existingStudents = await _context.Students
-            .Where(student =>
-                !student.IsDeleted
-                && student.Id != id)
+            .Where(student => !student.IsDeleted && student.Id != id)
             .AsNoTracking()
             .ToListAsync();
 
@@ -398,9 +390,7 @@ public class StudentsController : Controller
 
         if (existingStudent is not null)
         {
-            ModelState.AddModelError(
-                string.Empty,
-                "同じ生徒情報がすでに登録されています。");
+            ModelState.AddModelError(string.Empty,"同じ生徒情報がすでに登録されています。");
 
             ViewData["Keyword"] = keyword;
             ViewData["GradeFilter"] = gradeFilter;
@@ -411,14 +401,16 @@ public class StudentsController : Controller
         }
 
         var student = await _context.Students
-            .FirstOrDefaultAsync(student =>
-                student.Id == id
-                && !student.IsDeleted);
+             .FirstOrDefaultAsync(student => student.Id == id && !student.IsDeleted);
 
         if (student is null)
         {
             return NotFound();
         }
+
+        var isNewlyWithdrawn = student.Status != "退会済み" && model.Status == "退会済み";
+
+        var now = DateTime.Now;
 
         student.Name = name;
         student.Kana = kana;
@@ -434,7 +426,23 @@ public class StudentsController : Controller
         student.GuardianPhone = guardianPhone;
         student.GuardianEmail = model.GuardianEmail;
         student.Note = model.Note;
-        student.UpdatedAt = DateTime.Now;
+        student.UpdatedAt = now;
+
+        if (isNewlyWithdrawn)
+        {
+            var currentMemberships = await _context.StudentClasses
+                .Where(studentClass =>
+                    studentClass.StudentId == student.Id
+                    && !studentClass.EndDate.HasValue
+                    && !studentClass.IsDeleted)
+                .ToListAsync();
+
+            foreach (var membership in currentMemberships)
+            {
+                membership.EndDate = model.WithdrawnAt!.Value.Date;
+                membership.UpdatedAt = now;
+            }
+        }
 
         await _context.SaveChangesAsync();
 
