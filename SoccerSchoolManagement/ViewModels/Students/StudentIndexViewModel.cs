@@ -1,4 +1,5 @@
-﻿using SoccerSchoolManagement.Models;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SoccerSchoolManagement.Models;
 
 namespace SoccerSchoolManagement.ViewModels.Students;
 
@@ -9,6 +10,10 @@ public class StudentIndexViewModel
     public string GradeFilter { get; set; } = "すべて";
 
     public string StatusFilter { get; set; } = "すべて";
+
+    public int? ClassFilter { get; set; }
+
+    public List<SelectListItem> ClassOptions { get; set; } = new();
 
     public List<Student> Students { get; set; } = new();
 

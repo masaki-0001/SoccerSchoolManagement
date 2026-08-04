@@ -7,6 +7,7 @@
     var keyword = ViewData["Keyword"] as string;
     var gradeFilter = ViewData["GradeFilter"] as string ?? "すべて";
     var statusFilter = ViewData["StatusFilter"] as string ?? "すべて";
+    var classFilter = ViewData["ClassFilter"] is int classValue ? classValue : (int?)null;
     var currentPage = ViewData["Page"] is int pageValue ? pageValue : 1;
 }
 
@@ -22,6 +23,8 @@
             <input type="hidden" name="gradeFilter" value="@gradeFilter" />
 
             <input type="hidden" name="statusFilter" value="@statusFilter" />
+
+            <input type="hidden" name="classFilter" value="@classFilter" />
 
             <input type="hidden" name="page" value="@currentPage" />
 
@@ -147,6 +150,7 @@
                    asp-route-keyword="@keyword"
                    asp-route-gradeFilter="@gradeFilter"
                    asp-route-statusFilter="@statusFilter"
+                   asp-route-classFilter="@classFilter"
                    asp-route-page="@currentPage"
                    class="btn btn-secondary">キャンセル</a>
             </div>

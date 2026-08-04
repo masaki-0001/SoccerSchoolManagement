@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SoccerSchoolManagement.Data;
 using SoccerSchoolManagement.Models;
@@ -16,7 +17,12 @@ public class StudentsController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index(string? keyword, string gradeFilter = "すべて", string statusFilter = "すべて", int page = 1)
+    public async Task<IActionResult> Index(
+        string? keyword, 
+        string gradeFilter = "すべて",
+        string statusFilter = "すべて",
+        int? classFilter = null,
+        int page = 1)
     {
         const int pageSize = 10;
 
@@ -39,6 +45,31 @@ public class StudentsController : Controller
             statusFilter = "すべて";
         }
 
+        var classes = await _context.Classes
+            .Where(soccerClass => !soccerClass.IsDeleted)
+            .OrderBy(soccerClass => soccerClass.Name)
+            .Select(soccerClass => new
+    {
+        soccerClass.Id,
+        soccerClass.Name
+    })
+
+    .AsNoTracking()
+    .ToListAsync();
+
+        if (classFilter.HasValue && !classes.Any(soccerClass => soccerClass.Id == classFilter.Value))
+        {
+            classFilter = null;
+        }
+
+        var classOptions = classes
+            .Select(soccerClass => new SelectListItem
+            {
+                Value = soccerClass.Id.ToString(),
+                Text = soccerClass.Name
+            })
+            .ToList();
+
         var query = _context.Students
             .Where(student => !student.IsDeleted)
             .AsNoTracking();
@@ -56,6 +87,15 @@ public class StudentsController : Controller
         if (statusFilter != "すべて")
         {
             query = query.Where(student => student.Status == statusFilter);
+        }
+
+        if (classFilter.HasValue)
+        {
+            query = query.Where(student =>
+                student.StudentClasses.Any(studentClass =>
+                    !studentClass.IsDeleted
+                    && !studentClass.EndDate.HasValue
+                    && studentClass.ClassId == classFilter.Value));
         }
 
         var totalCount = await query.CountAsync();
@@ -79,6 +119,8 @@ public class StudentsController : Controller
             Keyword = normalizedKeyword,
             GradeFilter = gradeFilter,
             StatusFilter = statusFilter,
+            ClassFilter = classFilter,
+            ClassOptions = classOptions,
             Students = students,
             CurrentPage = page,
             TotalPages = totalPages,
@@ -92,7 +134,8 @@ public class StudentsController : Controller
     public async Task<IActionResult> ExportCsv(
         string? keyword,
         string gradeFilter = "すべて",
-        string statusFilter = "すべて")
+        string statusFilter = "すべて",
+        int? classFilter = null)
     {
         var normalizedKeyword = string.IsNullOrWhiteSpace(keyword) ? null : keyword.Trim();
 
@@ -104,6 +147,18 @@ public class StudentsController : Controller
         if (statusFilter != "すべて" && !StudentFormOptions.Statuses.Contains(statusFilter))
         {
             statusFilter = "すべて";
+        }
+
+        if (classFilter.HasValue)
+        {
+            var classExists = await _context.Classes
+                .AsNoTracking()
+                .AnyAsync(soccerClass => soccerClass.Id == classFilter.Value && !soccerClass.IsDeleted);
+
+            if (!classExists)
+            {
+                classFilter = null;
+            }
         }
 
         var query = _context.Students
@@ -123,6 +178,15 @@ public class StudentsController : Controller
         if (statusFilter != "すべて")
         {
             query = query.Where(student => student.Status == statusFilter);
+        }
+
+        if (classFilter.HasValue)
+        {
+            query = query.Where(student =>
+                student.StudentClasses.Any(studentClass =>
+                    !studentClass.IsDeleted
+                    && !studentClass.EndDate.HasValue
+                    && studentClass.ClassId == classFilter.Value));
         }
 
         var students = await query
@@ -193,6 +257,7 @@ public class StudentsController : Controller
         string? keyword,
         string gradeFilter = "すべて",
         string statusFilter = "すべて",
+        int? classFilter = null,
         int page = 1)
     {
         if (!id.HasValue)
@@ -212,6 +277,7 @@ public class StudentsController : Controller
         ViewData["Keyword"] = keyword;
         ViewData["GradeFilter"] = gradeFilter;
         ViewData["StatusFilter"] = statusFilter;
+        ViewData["ClassFilter"] = classFilter;
         ViewData["Page"] = page;
 
         return View(student);
@@ -301,6 +367,7 @@ public class StudentsController : Controller
         string? keyword,
         string gradeFilter = "すべて",
         string statusFilter = "すべて",
+        int? classFilter = null,
         int page = 1)
     {
         if (!id.HasValue)
@@ -339,6 +406,7 @@ public class StudentsController : Controller
         ViewData["Keyword"] = keyword;
         ViewData["GradeFilter"] = gradeFilter;
         ViewData["StatusFilter"] = statusFilter;
+        ViewData["ClassFilter"] = classFilter;
         ViewData["Page"] = page;
 
         return View(model);
@@ -352,6 +420,7 @@ public class StudentsController : Controller
         string? keyword,
         string gradeFilter = "すべて",
         string statusFilter = "すべて",
+        int? classFilter = null,
         int page = 1)
     {
         if (id != model.Id)
@@ -364,6 +433,7 @@ public class StudentsController : Controller
             ViewData["Keyword"] = keyword;
             ViewData["GradeFilter"] = gradeFilter;
             ViewData["StatusFilter"] = statusFilter;
+            ViewData["ClassFilter"] = classFilter;
             ViewData["Page"] = page;
 
             return View(model);
@@ -395,6 +465,7 @@ public class StudentsController : Controller
             ViewData["Keyword"] = keyword;
             ViewData["GradeFilter"] = gradeFilter;
             ViewData["StatusFilter"] = statusFilter;
+            ViewData["ClassFilter"] = classFilter;
             ViewData["Page"] = page;
 
             return View(model);
@@ -453,6 +524,7 @@ public class StudentsController : Controller
                 keyword,
                 gradeFilter,
                 statusFilter,
+                classFilter,
                 page
             });
     }
@@ -463,6 +535,7 @@ public class StudentsController : Controller
         string? keyword,
         string gradeFilter = "すべて",
         string statusFilter = "すべて",
+        int? classFilter = null,
         int page = 1)
     {
         if (!id.HasValue)
@@ -482,6 +555,7 @@ public class StudentsController : Controller
         ViewData["Keyword"] = keyword;
         ViewData["GradeFilter"] = gradeFilter;
         ViewData["StatusFilter"] = statusFilter;
+        ViewData["ClassFilter"] = classFilter;
         ViewData["Page"] = page;
 
         return View(student);
@@ -495,6 +569,7 @@ public class StudentsController : Controller
         string? keyword,
         string gradeFilter = "すべて",
         string statusFilter = "すべて",
+        int? classFilter = null,
         int page = 1)
     {
         var student = await _context.Students
@@ -520,6 +595,7 @@ public class StudentsController : Controller
                 keyword,
                 gradeFilter,
                 statusFilter,
+                classFilter,
                 page
             });
     }

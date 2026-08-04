@@ -6,6 +6,7 @@
     var keyword = ViewData["Keyword"] as string;
     var gradeFilter = ViewData["GradeFilter"] as string ?? "すべて";
     var statusFilter = ViewData["StatusFilter"] as string ?? "すべて";
+    var classFilter = ViewData["ClassFilter"] is int classValue ? classValue : (int?)null;
     var currentPage = ViewData["Page"] is int pageValue ? pageValue : 1;
 }
 
@@ -29,19 +30,24 @@
            asp-route-keyword="@keyword"
            asp-route-gradeFilter="@gradeFilter"
            asp-route-statusFilter="@statusFilter"
+           asp-route-classFilter="@classFilter"
            asp-route-page="@currentPage"
            class="btn btn-primary">編集</a>
+
         <a asp-action="Delete"
            asp-route-id="@Model.Id"
            asp-route-keyword="@keyword"
            asp-route-gradeFilter="@gradeFilter"
            asp-route-statusFilter="@statusFilter"
+           asp-route-classFilter="@classFilter"
            asp-route-page="@currentPage"
            class="btn btn-outline-danger">削除</a>
+
         <a asp-action="Index"
            asp-route-keyword="@keyword"
            asp-route-gradeFilter="@gradeFilter"
            asp-route-statusFilter="@statusFilter"
+           asp-route-classFilter="@classFilter"
            asp-route-page="@currentPage"
            class="btn btn-secondary">一覧へ戻る</a>    
     </div>
