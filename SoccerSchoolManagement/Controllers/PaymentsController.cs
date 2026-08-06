@@ -200,9 +200,17 @@ public class PaymentsController : Controller
             .Concat(csvBytes)
             .ToArray();
 
-        var fileName = $"月謝一覧_{targetYear}{targetMonth:D2}_{DateTime.Now:yyyyMMdd}.csv";
+        var fileNamePrefix = statusFilter == "未払い"
+            ? "未払い一覧"
+            : "月謝一覧";
 
-        return File( bytes, "text/csv; charset=utf-8", fileName);
+        var fileName =
+            $"{fileNamePrefix}_{targetYear}{targetMonth:D2}_{DateTime.Now:yyyyMMdd}.csv";
+
+        return File(
+            bytes,
+            "text/csv; charset=utf-8",
+            fileName);
     }
 
     [HttpPost]
@@ -342,7 +350,7 @@ public class PaymentsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Unpaid(int page = 1)
+    public async Task<IActionResult> Unpaid(int? year, int? month, int page = 1)
     {
         const int pageSize = 10;
 
@@ -351,16 +359,33 @@ public class PaymentsController : Controller
             page = 1;
         }
 
+        var today = DateTime.Today;
+
+        var targetYear = year ?? today.Year;
+        var targetMonth = month ?? today.Month;
+
+        if (targetYear < 2000
+            || targetYear > 2100
+            || targetMonth < 1
+            || targetMonth > 12)
+        {
+            return BadRequest();
+        }
+
         var query = _context.Payments
-            .Where(payment => !payment.IsDeleted && payment.Status == "未払い" && !payment.Student.IsDeleted)
+            .Where(payment =>
+                !payment.IsDeleted
+                && !payment.Student.IsDeleted
+                && payment.TargetYear == targetYear
+                && payment.TargetMonth == targetMonth
+                && payment.Status == "未払い")
             .AsNoTracking();
 
         var unpaidCount = await query.CountAsync();
 
-        var totalAmount = await query
-            .SumAsync(payment => payment.Amount);
+        var totalAmount = await query.SumAsync(payment => payment.Amount);
 
-        var totalPages = (int)Math.Ceiling( unpaidCount / (double)pageSize);
+        var totalPages =(int)Math.Ceiling(unpaidCount / (double)pageSize);
 
         if (totalPages > 0 && page > totalPages)
         {
@@ -369,9 +394,7 @@ public class PaymentsController : Controller
 
         var payments = await query
             .Include(payment => payment.Student)
-            .OrderBy(payment => payment.TargetYear)
-            .ThenBy(payment => payment.TargetMonth)
-            .ThenBy(payment => payment.Student.Kana)
+            .OrderBy(payment => payment.Student.Kana)
             .ThenBy(payment => payment.Student.Name)
             .ThenBy(payment => payment.Id)
             .Skip((page - 1) * pageSize)
@@ -380,6 +403,8 @@ public class PaymentsController : Controller
 
         var model = new PaymentUnpaidViewModel
         {
+            Year = targetYear,
+            Month = targetMonth,
             Payments = payments,
             UnpaidCount = unpaidCount,
             TotalAmount = totalAmount,

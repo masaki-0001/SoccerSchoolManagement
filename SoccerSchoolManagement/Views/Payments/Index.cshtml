@@ -16,6 +16,8 @@
 
     <a asp-controller="Payments"
        asp-action="Unpaid"
+       asp-route-year="@Model.Year"
+       asp-route-month="@Model.Month"
        class="btn btn-outline-danger">
         未払い一覧
     </a>

@@ -13,14 +13,73 @@
     gap-2
     mb-4">
 
-    <h1>未払い一覧</h1>
+    <div>
+        <h1>未払い一覧</h1>
 
-    <a asp-controller="Payments"
-       asp-action="Index"
-       class="btn btn-outline-secondary">
-        月謝管理へ戻る
-    </a>
+        <div class="text-muted">
+            @Model.Year 年 @Model.Month 月
+        </div>
+    </div>
+
+    <div class="d-flex flex-column flex-sm-row gap-2">
+        <a asp-controller="Payments"
+           asp-action="ExportCsv"
+           asp-route-year="@Model.Year"
+           asp-route-month="@Model.Month"
+           asp-route-statusFilter="未払い"
+           class="btn btn-outline-success">
+            CSV出力
+        </a>
+
+        <a asp-controller="Payments"
+           asp-action="Index"
+           asp-route-year="@Model.Year"
+           asp-route-month="@Model.Month"
+           asp-route-statusFilter="未払い"
+           class="btn btn-outline-secondary">
+            月謝管理へ戻る
+        </a>
+    </div>
 </div>
+
+<form asp-controller="Payments"
+      asp-action="Unpaid"
+      method="get"
+      class="row g-3 align-items-end mb-4">
+
+    <div class="col-sm-4 col-md-3">
+        <label asp-for="Year"
+               class="form-label">
+            対象年
+        </label>
+
+        <input asp-for="Year"
+               type="number"
+               min="2000"
+               max="2100"
+               class="form-control" />
+    </div>
+
+    <div class="col-sm-4 col-md-3">
+        <label asp-for="Month"
+               class="form-label">
+            対象月
+        </label>
+
+        <input asp-for="Month"
+               type="number"
+               min="1"
+               max="12"
+               class="form-control" />
+    </div>
+
+    <div class="col-sm-4 col-md-3">
+        <button type="submit"
+                class="btn btn-primary w-100">
+            表示
+        </button>
+    </div>
+</form>
 
 <div class="row g-3 mb-4">
     <div class="col-md-4">
@@ -51,15 +110,17 @@
 @if (Model.Payments.Count == 0)
 {
     <div class="alert alert-success">
-        未払いの月謝はありません。
+        @Model.Year 年 @Model.Month 月の
+        未払い月謝はありません。
     </div>
 }
 else
 {
 
     <p class="text-muted">
+        @Model.Year 年 @Model.Month 月：
         全 @Model.UnpaidCount 件中、
-        @Model.Payments.Count 件
+        @Model.Payments.Count 件を表示
     </p>
 
     <div class="table-responsive">
@@ -107,6 +168,7 @@ else
                                asp-action="Index"
                                asp-route-year="@payment.TargetYear"
                                asp-route-month="@payment.TargetMonth"
+                               asp-route-statusFilter="未払い"
                                class="btn btn-sm btn-outline-primary">
                                 対象月を開く
                             </a>
@@ -127,6 +189,8 @@ else
                     <li class="page-item">
                         <a asp-controller="Payments"
                            asp-action="Unpaid"
+                           asp-route-year="@Model.Year"
+                           asp-route-month="@Model.Month"
                            asp-route-page="@(Model.CurrentPage - 1)"
                            class="page-link">
                             ＜
@@ -164,6 +228,8 @@ else
                             <li class="page-item">
                                 <a asp-controller="Payments"
                                    asp-action="Unpaid"
+                                   asp-route-year="@Model.Year"
+                                   asp-route-month="@Model.Month"
                                    asp-route-page="@pageNumber"
                                    class="page-link">
                                     @pageNumber
@@ -186,6 +252,8 @@ else
                     <li class="page-item">
                         <a asp-controller="Payments"
                            asp-action="Unpaid"
+                           asp-route-year="@Model.Year"
+                           asp-route-month="@Model.Month"
                            asp-route-page="@(Model.CurrentPage + 1)"
                            class="page-link">
                             ＞
