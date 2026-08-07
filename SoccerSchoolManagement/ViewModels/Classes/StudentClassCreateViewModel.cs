@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SoccerSchoolManagement.ViewModels.Classes;
 
-public class StudentClassCreateViewModel
+public class StudentClassCreateViewModel:IValidatableObject
 {
     public int ClassId { get; set; }
 
@@ -20,4 +20,12 @@ public class StudentClassCreateViewModel
     public string? Note { get; set; }
 
     public List<SelectListItem> StudentOptions { get; set; } = new();
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (StartDate.HasValue && StartDate.Value.Date > DateTime.Today)
+        {
+            yield return new ValidationResult("所属開始日に未来日は指定できません。", new[] { nameof(StartDate) });
+        }
+    }
 }
