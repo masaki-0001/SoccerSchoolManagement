@@ -38,6 +38,8 @@
     <h1 class="mb-0">練習予定一覧</h1>
 
     <a asp-action="Create"
+       asp-route-returnYear="@Model.Year"
+       asp-route-returnMonth="@Model.Month"
        class="btn btn-primary">
         新規予定登録
     </a>

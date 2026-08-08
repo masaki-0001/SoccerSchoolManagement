@@ -37,6 +37,10 @@ public class LessonEditViewModel : IValidatableObject
     [StringLength(100,ErrorMessage = "備考は100文字以内で入力してください。")]
     public string? Note { get; set; }
 
+    public int? ReturnYear { get; set; }
+
+    public int? ReturnMonth { get; set; }
+
     public List<SelectListItem> ClassOptions { get; set; } = new();
 
     public IEnumerable<ValidationResult> Validate(

@@ -55,9 +55,13 @@ public class LessonsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create(int? classId)
+    public async Task<IActionResult> Create(int? classId, int? returnYear, int? returnMonth)
     {
-        var model = new LessonCreateViewModel();
+        var model = new LessonCreateViewModel
+        {
+            ReturnYear = returnYear,
+            ReturnMonth = returnMonth
+        };
 
         if (classId.HasValue)
         {
@@ -189,6 +193,8 @@ public class LessonsController : Controller
             CoachName = lesson.CoachName,
             Status = lesson.Status,
             Note = lesson.Note,
+            ReturnYear = lesson.LessonDate.Year,
+            ReturnMonth = lesson.LessonDate.Month,
             ClassOptions = await LoadClassOptionsAsync(lesson.ClassId)
         };
 
