@@ -30,6 +30,14 @@
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+            @if (Model.HasDuplicateWarning)
+            {
+                <div class="alert alert-warning">
+                    登録済みの生徒と2項目以上一致しています。
+                    別の生徒であることを確認した場合は、そのまま保存できます。
+                </div>
+            }
+
             <h2 class="h4 mt-3">基本情報</h2>
 
             <div class="mb-3">
@@ -145,7 +153,16 @@
             </div>
 
             <div class="mt-4 d-flex flex-column flex-sm-row gap-2">
+                <input type="hidden" asp-for="ConfirmDuplicate" id="confirmDuplicate" />
                 <button type="submit" class="btn btn-primary">保存</button>
+                @if (Model.HasDuplicateWarning)
+                {
+                    <button type="submit"
+                            class="btn btn-warning"
+                            onclick="document.getElementById('confirmDuplicate').value = 'true';">
+                        それでも保存する
+                    </button>
+                }
                 <a asp-action="Index"
                    asp-route-keyword="@keyword"
                    asp-route-gradeFilter="@gradeFilter"

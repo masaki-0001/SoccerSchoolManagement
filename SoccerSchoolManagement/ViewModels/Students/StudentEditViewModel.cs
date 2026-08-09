@@ -60,6 +60,10 @@ public class StudentEditViewModel : IValidatableObject
     [StringLength(100, ErrorMessage = "備考は100文字以内で入力してください。")]
     public string? Note { get; set; }
 
+    public bool ConfirmDuplicate { get; set; }
+
+    public bool HasDuplicateWarning { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (BirthDate.HasValue && BirthDate.Value.Date > DateTime.Today)

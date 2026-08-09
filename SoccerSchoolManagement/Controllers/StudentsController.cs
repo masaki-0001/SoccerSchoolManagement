@@ -310,23 +310,63 @@ public class StudentsController : Controller
             .AsNoTracking()
             .ToListAsync();
 
-        var existingStudent = existingStudents
-            .FirstOrDefault(student =>
-                RemoveSpaces(student.Name) == normalizedName
-                && RemoveSpaces(student.Kana) == normalizedKana
-                && student.BirthDate == model.BirthDate!.Value
-                && student.GuardianPhone.Trim() == guardianPhone);
+        var possibleDuplicate = false;
 
-        if (existingStudent is not null)
+        foreach (var existingStudent in existingStudents)
         {
-            if (existingStudent.Status == "退会済み")
+            var matchCount = 0;
+
+            if (RemoveSpaces(existingStudent.Name) == normalizedName)
             {
-                ModelState.AddModelError(string.Empty,"同じ生徒が退会済みで登録されています。既存の生徒情報を編集して再入会してください。");
+                matchCount++;
             }
-            else
+
+            if (RemoveSpaces(existingStudent.Kana) == normalizedKana)
             {
-                ModelState.AddModelError(string.Empty,"同じ生徒情報がすでに登録されています。");
+                matchCount++;
             }
+
+            if (existingStudent.BirthDate == model.BirthDate!.Value)
+            {
+                matchCount++;
+            }
+
+            if (existingStudent.GuardianPhone.Trim() == guardianPhone)
+            {
+                matchCount++;
+            }
+
+            if (matchCount == 4)
+            {
+                if (existingStudent.Status == "退会済み")
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "同じ生徒が退会済みで登録されています。既存の生徒情報を編集して再入会してください。");
+                }
+                else
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "同じ生徒情報がすでに登録されています。");
+                }
+
+                return View(model);
+            }
+
+            if (matchCount >= 2)
+            {
+                possibleDuplicate = true;
+            }
+        }
+
+        if (possibleDuplicate && !model.ConfirmDuplicate)
+        {
+            model.HasDuplicateWarning = true;
+
+            ModelState.AddModelError(
+                string.Empty,
+                "登録済みの生徒と2項目以上一致しています。内容を確認してください。");
 
             return View(model);
         }
@@ -447,26 +487,54 @@ public class StudentsController : Controller
         var normalizedKana = RemoveSpaces(kana);
 
         var existingStudents = await _context.Students
-            .Where(student => !student.IsDeleted && student.Id != id)
+            .Where(student => !student.IsDeleted && student.Id != model.Id)
             .AsNoTracking()
             .ToListAsync();
 
-        var existingStudent = existingStudents
-            .FirstOrDefault(student =>
-                RemoveSpaces(student.Name) == normalizedName
-                && RemoveSpaces(student.Kana) == normalizedKana
-                && student.BirthDate == model.BirthDate!.Value
-                && student.GuardianPhone.Trim() == guardianPhone);
+        var possibleDuplicate = false;
 
-        if (existingStudent is not null)
+        foreach (var existingStudent in existingStudents)
         {
-            ModelState.AddModelError(string.Empty,"同じ生徒情報がすでに登録されています。");
+            var matchCount = 0;
 
-            ViewData["Keyword"] = keyword;
-            ViewData["GradeFilter"] = gradeFilter;
-            ViewData["StatusFilter"] = statusFilter;
-            ViewData["ClassFilter"] = classFilter;
-            ViewData["Page"] = page;
+            if (RemoveSpaces(existingStudent.Name) == normalizedName)
+            {
+                matchCount++;
+            }
+
+            if (RemoveSpaces(existingStudent.Kana) == normalizedKana)
+            {
+                matchCount++;
+            }
+
+            if (existingStudent.BirthDate == model.BirthDate!.Value)
+            {
+                matchCount++;
+            }
+
+            if (existingStudent.GuardianPhone.Trim() == guardianPhone)
+            {
+                matchCount++;
+            }
+
+            if (matchCount == 4)
+            {
+                ModelState.AddModelError(string.Empty,"同じ生徒情報がすでに登録されています。");
+
+                return View(model);
+            }
+
+            if (matchCount >= 2)
+            {
+                possibleDuplicate = true;
+            }
+        }
+
+        if (possibleDuplicate && !model.ConfirmDuplicate)
+        {
+            model.HasDuplicateWarning = true;
+
+            ModelState.AddModelError(string.Empty,"登録済みの生徒と2項目以上一致しています。内容を確認してください。");
 
             return View(model);
         }
