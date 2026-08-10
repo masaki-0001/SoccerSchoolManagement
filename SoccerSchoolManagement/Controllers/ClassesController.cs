@@ -278,6 +278,11 @@ public class ClassesController : Controller
 
         if (selectedStudent is not null)
         {
+            if (model.StartDate.HasValue && model.StartDate.Value.Date < selectedStudent.JoinedAt.Date)
+            {
+                ModelState.AddModelError(nameof(StudentClassCreateViewModel.StartDate) , "所属開始日は生徒の入会日以降の日付を入力してください。");
+            }
+
             var alreadyExists = await _context.StudentClasses
                 .AnyAsync(studentClass => studentClass.StudentId == selectedStudent.Id
                     && studentClass.ClassId == id

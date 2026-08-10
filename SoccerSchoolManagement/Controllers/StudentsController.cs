@@ -521,6 +521,12 @@ public class StudentsController : Controller
             {
                 ModelState.AddModelError(string.Empty,"同じ生徒情報がすでに登録されています。");
 
+                ViewData["Keyword"] = keyword;
+                ViewData["GradeFilter"] = gradeFilter;
+                ViewData["StatusFilter"] = statusFilter;
+                ViewData["ClassFilter"] = classFilter;
+                ViewData["Page"] = page;
+
                 return View(model);
             }
 
@@ -535,6 +541,12 @@ public class StudentsController : Controller
             model.HasDuplicateWarning = true;
 
             ModelState.AddModelError(string.Empty,"登録済みの生徒と2項目以上一致しています。内容を確認してください。");
+
+            ViewData["Keyword"] = keyword;
+            ViewData["GradeFilter"] = gradeFilter;
+            ViewData["StatusFilter"] = statusFilter;
+            ViewData["ClassFilter"] = classFilter;
+            ViewData["Page"] = page;
 
             return View(model);
         }

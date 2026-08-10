@@ -91,6 +91,11 @@ public class StudentEditViewModel : IValidatableObject
             yield return new ValidationResult("退会済みの場合は退会日を入力してください。", new[] { nameof(WithdrawnAt) });
         }
 
+        if (JoinedAt.HasValue && WithdrawnAt.HasValue && WithdrawnAt.Value.Date < JoinedAt.Value.Date)
+        {
+            yield return new ValidationResult("退会日は入会日以降の日付を入力してください。", new[] { nameof(WithdrawnAt) });
+        }
+
         if (Status != "退会済み" && WithdrawnAt.HasValue)
         {
             yield return new ValidationResult("退会日は在籍状況が退会済みの場合だけ入力してください。", new[] { nameof(WithdrawnAt) });
