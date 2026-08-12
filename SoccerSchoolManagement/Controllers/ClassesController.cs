@@ -406,7 +406,12 @@ public class ClassesController : Controller
                 ModelState.AddModelError(nameof(StudentClassEndViewModel.EndDate),"所属終了日は所属開始日以降にしてください。");
             }
 
-            if (!ModelState.IsValid)
+        if (model.EndDate.HasValue && model.EndDate.Value.Date > DateTime.Today)
+        {
+            ModelState.AddModelError(nameof(StudentClassEndViewModel.EndDate),"所属終了日は今日以前の日付を入力してください。");
+        }
+
+        if (!ModelState.IsValid)
             {
                 return View(model);
             }
