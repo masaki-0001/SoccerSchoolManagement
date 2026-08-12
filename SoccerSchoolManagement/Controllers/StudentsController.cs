@@ -48,11 +48,7 @@ public class StudentsController : Controller
         var classes = await _context.Classes
             .Where(soccerClass => !soccerClass.IsDeleted)
             .OrderBy(soccerClass => soccerClass.Name)
-            .Select(soccerClass => new
-    {
-        soccerClass.Id,
-        soccerClass.Name
-    })
+            .Select(soccerClass => new{soccerClass.Id, soccerClass.Name})
 
     .AsNoTracking()
     .ToListAsync();
@@ -557,6 +553,23 @@ public class StudentsController : Controller
         if (student is null)
         {
             return NotFound();
+        }
+
+        var earliestMembershipStartDate = await _context.StudentClasses
+            .Where(studentClass => studentClass.StudentId == student.Id && !studentClass.IsDeleted)
+            .MinAsync(studentClass => (DateTime?)studentClass.StartDate);
+
+        if (earliestMembershipStartDate.HasValue && model.JoinedAt!.Value.Date > earliestMembershipStartDate.Value.Date)
+        {
+            ModelState.AddModelError(nameof(StudentEditViewModel.JoinedAt),"入会日は最初の所属開始日以前の日付を入力してください。");
+
+            ViewData["Keyword"] = keyword;
+            ViewData["GradeFilter"] = gradeFilter;
+            ViewData["StatusFilter"] = statusFilter;
+            ViewData["ClassFilter"] = classFilter;
+            ViewData["Page"] = page;
+
+            return View(model);
         }
 
         var isNewlyWithdrawn = student.Status != "退会済み" && model.Status == "退会済み";
