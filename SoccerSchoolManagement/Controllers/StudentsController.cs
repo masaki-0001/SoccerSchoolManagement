@@ -589,6 +589,23 @@ public class StudentsController : Controller
             return View(model);
         }
 
+        var latestCurrentMembershipStartDate = await _context.StudentClasses
+            .Where(studentClass => studentClass.StudentId == student.Id && !studentClass.IsDeleted && !studentClass.EndDate.HasValue)
+            .MaxAsync(studentClass => (DateTime?)studentClass.StartDate);
+
+        if (model.Status == "退会済み" && model.WithdrawnAt.HasValue && latestCurrentMembershipStartDate.HasValue && model.WithdrawnAt.Value.Date < latestCurrentMembershipStartDate.Value.Date)
+        {
+            ModelState.AddModelError(nameof(StudentEditViewModel.WithdrawnAt),"退会日は現在所属しているクラスの所属開始日以降の日付を入力してください。");
+
+            ViewData["Keyword"] = keyword;
+            ViewData["GradeFilter"] = gradeFilter;
+            ViewData["StatusFilter"] = statusFilter;
+            ViewData["ClassFilter"] = classFilter;
+            ViewData["Page"] = page;
+
+            return View(model);
+        }
+
         var isNewlyWithdrawn = student.Status != "退会済み" && model.Status == "退会済み";
 
         var now = DateTime.Now;

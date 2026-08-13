@@ -232,6 +232,27 @@ public class LessonsController : Controller
             }
         }
 
+        var hasAttendances = await _context.Attendances
+            .AnyAsync(attendance => attendance.LessonId == lesson.Id && !attendance.IsDeleted);
+
+        if (hasAttendances)
+        {
+            if (model.ClassId.HasValue && model.ClassId.Value != lesson.ClassId)
+            {
+                ModelState.AddModelError(nameof(model.ClassId) , "出欠情報が登録されているため、クラスは変更できません。");
+            }
+
+            if (model.LessonDate.HasValue && model.LessonDate.Value.Date != lesson.LessonDate.Date)
+            {
+                ModelState.AddModelError(nameof(model.LessonDate) , "出欠情報が登録されているため、開催日は変更できません。");
+            }
+
+            if ((model.Status == "中止" || model.Status == "休講") && model.Status != lesson.Status)
+            {
+                ModelState.AddModelError(nameof(model.Status) ,"出欠情報が登録されているため、中止・休講には変更できません。");
+            }
+        }
+
         if (model.ClassId.HasValue && model.LessonDate.HasValue && model.StartTime.HasValue)
         {
             var lessonDate = model.LessonDate.Value.Date;
