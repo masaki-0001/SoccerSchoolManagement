@@ -679,6 +679,15 @@ public class StudentsController : Controller
             return NotFound();
         }
 
+        var hasAttendances = await _context.Attendances
+            .AnyAsync(attendance => attendance.StudentId == student.Id && !attendance.IsDeleted);
+
+        var hasPayments = await _context.Payments
+            .AnyAsync(payment => payment.StudentId == student.Id && !payment.IsDeleted);
+
+        ViewData["HasAttendances"] = hasAttendances;
+        ViewData["HasPayments"] = hasPayments;
+
         ViewData["Keyword"] = keyword;
         ViewData["GradeFilter"] = gradeFilter;
         ViewData["StatusFilter"] = statusFilter;
@@ -705,6 +714,26 @@ public class StudentsController : Controller
         if (student is null)
         {
             return NotFound();
+        }
+
+        var hasCurrentMembership = await _context.StudentClasses
+            .AnyAsync(studentClass => studentClass.StudentId == student.Id && !studentClass.IsDeleted && !studentClass.EndDate.HasValue);
+
+        if (hasCurrentMembership)
+        {
+            TempData["ErrorMessage"] = "現在クラスに所属しているため、生徒を削除できません。先にクラス所属の誤登録取消しを行ってください。";
+
+            return RedirectToAction(
+                nameof(Delete),
+                new
+                {
+                    id = student.Id,
+                    keyword,
+                    gradeFilter,
+                    statusFilter,
+                    classFilter,
+                    page
+                });
         }
 
         var now = DateTime.Now;

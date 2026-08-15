@@ -444,7 +444,7 @@ public class PaymentsController : Controller
         }
 
         var payment = await _context.Payments
-            .FirstOrDefaultAsync(payment => payment.Id == id && !payment.IsDeleted);
+            .FirstOrDefaultAsync(payment => payment.Id == id && !payment.IsDeleted && !payment.Student.IsDeleted);
 
         if (payment == null)
         {

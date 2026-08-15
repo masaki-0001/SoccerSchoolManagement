@@ -8,6 +8,8 @@
     var statusFilter = ViewData["StatusFilter"] as string ?? "すべて";
     var classFilter = ViewData["ClassFilter"] is int classValue ? classValue : (int?)null;
     var currentPage = ViewData["Page"] is int pageValue ? pageValue : 1;
+    var hasAttendances = ViewData["HasAttendances"] is bool attendanceValue && attendanceValue;
+    var hasPayments = ViewData["HasPayments"] is bool paymentValue && paymentValue;
 }
 
 <div class="mb-4">
@@ -21,6 +23,35 @@
     <strong>注意：</strong>
     この操作は退会処理ではありません。
 </div>
+
+@if (hasAttendances || hasPayments)
+{
+    <div class="alert alert-warning" role="alert">
+        <strong>関連データがあります。</strong>
+
+        @if (hasAttendances)
+        {
+            <div>この生徒には出欠データがあります。</div>
+        }
+
+        @if (hasPayments)
+        {
+            <div>この生徒には月謝データがあります。</div>
+        }
+
+        <div>
+            生徒を削除すると通常画面では表示されなくなります。
+            誤登録であることを確認してから削除してください。
+        </div>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
 
 <div class="card mb-4">
     <div class="card-header">削除対象</div>
