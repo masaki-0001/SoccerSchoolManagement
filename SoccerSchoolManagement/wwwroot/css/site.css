@@ -444,27 +444,54 @@ h1 {
 }
 
 .attendance-table-wrapper {
-    -webkit-overflow-scrolling: touch;
+    overflow-x: visible;
 }
 
 .attendance-edit-table {
-    min-width: 665px;
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.attendance-edit-table thead {
+    display: none;
+}
+
+.attendance-edit-table tbody {
+    display: block;
+}
+
+.attendance-edit-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.6rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.4rem;
+}
+
+.attendance-edit-table tbody td {
+    display: block;
+    width: auto;
+    min-width: 0;
+    padding: 0 !important;
+    border: 0 !important;
 }
 
 .attendance-number-column {
-    width: 45px;
-    min-width: 45px;
-    padding-right: 0.3rem !important;
-    padding-left: 0.3rem !important;
+    grid-column: 1 / span 2;
+    align-self: center;
+    text-align: center;
 }
 
 .attendance-name-column {
-    width: 120px;
-    min-width: 120px;
+    grid-column: 3 / span 6;
+    align-self: center;
 }
 
 .attendance-grade-column {
-    display: none;
+    display: none !important;
 }
 
 .attendance-mobile-grade {
@@ -472,18 +499,42 @@ h1 {
 }
 
 .attendance-status-column {
-    width: 120px;
-    min-width: 120px;
+    grid-column: 9 / span 4;
+    align-self: center;
 }
 
 .attendance-reason-column {
-    width: 180px;
-    min-width: 180px;
+    grid-column: 1 / span 6;
 }
 
 .attendance-note-column {
-    width: 200px;
-    min-width: 200px;
+    grid-column: 7 / span 6;
+}
+
+.attendance-edit-table tbody tr:not(.attendance-absent)
+.attendance-reason-column {
+    display: none;
+}
+
+.attendance-edit-table tbody tr:not(.attendance-absent)
+.attendance-note-column {
+    grid-column: 1 / span 12;
+}
+
+.attendance-reason-column::before {
+    content: "欠席理由";
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.attendance-note-column::before {
+    content: "備考";
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    color: #6c757d;
 }
 
 .attendance-action-buttons {

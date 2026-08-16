@@ -213,7 +213,7 @@
 
                             <td class="attendance-status-column">
                                 <select asp-for="Students[i].Status"
-                                        class="form-select"
+                                        class="form-select attendance-status-select"
                                         disabled="@isAttendanceDisabled">
                                     <option value="未確認">未確認</option>
                                     <option value="出席">出席</option>
@@ -256,6 +256,10 @@
     <div class="d-flex gap-2 mt-3 attendance-action-buttons">
             @if (!isAttendanceDisabled)
             {
+                <button type="button" id="markUnconfirmedAsPresent" class="btn btn-outline-primary">
+                    表示中の未確認を出席にする
+                </button>
+
                 <button type="submit" class="btn btn-primary">
                     登録
                 </button>
@@ -273,4 +277,37 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function updateAttendanceRow(select) {
+            const row = select.closest("tr");
+
+            if (!row) {
+                return;
+            }
+
+            row.classList.toggle("attendance-absent", select.value === "欠席");
+        }
+
+        const statusSelects = document.querySelectorAll(".attendance-status-select");
+
+        statusSelects.forEach(function(select) {
+            updateAttendanceRow(select);
+
+            select.addEventListener("change", function() {
+                updateAttendanceRow(select);
+            });
+        });
+
+        document.getElementById("markUnconfirmedAsPresent")
+            ?.addEventListener("click", function() {
+
+                statusSelects.forEach(function(select) {
+                    if (select.value === "未確認") {
+                        select.value = "出席";
+                        updateAttendanceRow(select);
+                    }
+                });
+            });
+    </script>
 }
