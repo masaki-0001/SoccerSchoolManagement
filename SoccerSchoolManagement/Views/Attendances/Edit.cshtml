@@ -61,6 +61,7 @@
     <div class="card-body">
         <form asp-action="Edit"
               method="get"
+              id="attendanceSearchForm"
               class="row g-2 align-items-end attendance-search-form">
 
             <input type="hidden"
@@ -122,6 +123,7 @@
             <div class="col-auto attendance-search-button">
                 <a asp-action="Edit"
                    asp-route-id="@Model.LessonId"
+                   id="attendanceClearLink"
                    class="btn btn-outline-secondary">
                     クリア
                 </a>
@@ -172,6 +174,17 @@
     }
     else
     {
+        @if (!isAttendanceDisabled)
+        {
+            <div class="mb-3">
+                <button type="button"
+                        id="markUnconfirmedAsPresent"
+                        class="btn btn-outline-primary">
+                    表示中の未確認を出席にする
+                </button>
+            </div>
+        }
+
         <div class="table-responsive attendance-table-wrapper">
             <table class="table table-bordered align-middle attendance-edit-table">
                 <thead>
@@ -253,13 +266,16 @@
         </div>
     }
 
+    @if (Model.Students.Count > 0)
+    {
+        <div id="attendanceStatusSummary"
+             class="alert alert-light border py-2 mt-3 mb-0">
+        </div>
+    }
+
     <div class="d-flex gap-2 mt-3 attendance-action-buttons">
             @if (!isAttendanceDisabled)
             {
-                <button type="button" id="markUnconfirmedAsPresent" class="btn btn-outline-primary">
-                    表示中の未確認を出席にする
-                </button>
-
                 <button type="submit" class="btn btn-primary">
                     登録
                 </button>
@@ -269,6 +285,7 @@
                asp-action="Index"
                asp-route-year="@Model.LessonDate.Year"
                asp-route-month="@Model.LessonDate.Month"
+               id="attendanceBackLink"
                class="btn btn-secondary">
                 練習予定一覧へ戻る
             </a>
@@ -290,17 +307,69 @@
         }
 
         const statusSelects = document.querySelectorAll(".attendance-status-select");
+        const statusSummary = document.getElementById("attendanceStatusSummary");
+
+        let hasUnsavedChanges = false;
+
+        const textInputs = document.querySelectorAll(
+            ".attendance-reason-column input, .attendance-note-column input"
+        );
+
+        function confirmDiscardChanges() {
+            if (!hasUnsavedChanges) {
+                return true;
+            }
+
+            return confirm(
+                "未保存の出欠情報があります。変更内容を破棄して移動しますか？"
+            );
+        }
+
+        function updateAttendanceSummary() {
+            let unconfirmedCount = 0;
+            let presentCount = 0;
+            let absentCount = 0;
+
+            statusSelects.forEach(function(select) {
+                if (select.value === "未確認") {
+                    unconfirmedCount++;
+                }
+                else if (select.value === "出席") {
+                    presentCount++;
+                }
+                else if (select.value === "欠席") {
+                    absentCount++;
+                }
+            });
+
+            if (statusSummary) {
+                statusSummary.textContent = 
+                `表示中：未確認 ${unconfirmedCount}人 / 出席 ${presentCount}人 / 欠席 ${absentCount}人`;
+            }
+        }
 
         statusSelects.forEach(function(select) {
             updateAttendanceRow(select);
 
             select.addEventListener("change", function() {
+                hasUnsavedChanges = true;
                 updateAttendanceRow(select);
+                updateAttendanceSummary();
             });
         });
 
+        textInputs.forEach(function(input) {
+            input.addEventListener("input", function() {
+                hasUnsavedChanges = true;
+            });
+        });
+
+        updateAttendanceSummary();
+
         document.getElementById("markUnconfirmedAsPresent")
             ?.addEventListener("click", function() {
+
+                let changed = false;
 
                 statusSelects.forEach(function(select) {
                     if (select.value === "未確認") {
@@ -308,6 +377,34 @@
                         updateAttendanceRow(select);
                     }
                 });
+
+                if (changed) {
+                    hasUnsavedChanges = true;
+                }
+
+                updateAttendanceSummary();
             });
+
+        document.getElementById("attendanceSearchForm")
+            ?.addEventListener("submit", function(event) {
+                if (!confirmDiscardChanges()) {
+                    event.preventDefault();
+                }
+            });
+
+        document.getElementById("attendanceClearLink")
+            ?.addEventListener("click", function(event) {
+                if (!confirmDiscardChanges()) {
+                    event.preventDefault();
+                }
+            });
+
+        document.getElementById("attendanceBackLink")
+            ?.addEventListener("click", function(event) {
+                if (!confirmDiscardChanges()) {
+                    event.preventDefault();
+                }
+            });
+
     </script>
 }
