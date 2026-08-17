@@ -50,7 +50,10 @@ public class PaymentsController : Controller
         }
 
         var query = _context.Payments
-            .Where(payment => !payment.IsDeleted && !payment.Student.IsDeleted  && payment.TargetYear == targetYear && payment.TargetMonth == targetMonth)
+            .Where(payment => !payment.IsDeleted 
+                && !payment.Student.IsDeleted  
+                && payment.TargetYear == targetYear 
+                && payment.TargetMonth == targetMonth)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(keyword))
@@ -83,8 +86,19 @@ public class PaymentsController : Controller
             .Take(pageSize)
             .ToListAsync();
 
+        var registeredStudentIds = await _context.Payments
+            .Where(payment =>
+                !payment.IsDeleted
+                && payment.TargetYear == targetYear
+                && payment.TargetMonth == targetMonth)
+            .Select(payment => payment.StudentId)
+            .ToListAsync();
+
         var studentOptions = await _context.Students
-            .Where(student => !student.IsDeleted && student.Status == "在籍中")
+            .Where(student =>
+                !student.IsDeleted
+                && student.Status == "在籍中"
+                && !registeredStudentIds.Contains(student.Id))
             .OrderBy(student => student.Kana)
             .ThenBy(student => student.Name)
             .Select(student => new SelectListItem
@@ -200,17 +214,11 @@ public class PaymentsController : Controller
             .Concat(csvBytes)
             .ToArray();
 
-        var fileNamePrefix = statusFilter == "未払い"
-            ? "未払い一覧"
-            : "月謝一覧";
+        var fileNamePrefix = statusFilter == "未払い" ? "未払い一覧" : "月謝一覧";
 
-        var fileName =
-            $"{fileNamePrefix}_{targetYear}{targetMonth:D2}_{DateTime.Now:yyyyMMdd}.csv";
+        var fileName = $"{fileNamePrefix}_{targetYear}{targetMonth:D2}_{DateTime.Now:yyyyMMdd}.csv";
 
-        return File(
-            bytes,
-            "text/csv; charset=utf-8",
-            fileName);
+        return File(bytes, "text/csv; charset=utf-8", fileName);
     }
 
     [HttpPost]
@@ -246,7 +254,10 @@ public class PaymentsController : Controller
         if (ModelState.IsValid)
         {
             var studentExists = await _context.Students
-                .AnyAsync(student => student.Id == model.StudentId && !student.IsDeleted && student.Status == "在籍中");
+                .AnyAsync(student => 
+                    student.Id == model.StudentId 
+                    && !student.IsDeleted 
+                    && student.Status == "在籍中");
 
             if (!studentExists)
             {
@@ -257,7 +268,11 @@ public class PaymentsController : Controller
         if (ModelState.IsValid)
         {
             var paymentExists = await _context.Payments
-                .AnyAsync(payment => !payment.IsDeleted && payment.StudentId == model.StudentId && payment.TargetYear == model.Year && payment.TargetMonth == model.Month);
+                .AnyAsync(payment => 
+                    !payment.IsDeleted 
+                    && payment.StudentId == model.StudentId 
+                    && payment.TargetYear == model.Year 
+                    && payment.TargetMonth == model.Month);
 
             if (paymentExists)
             {
@@ -267,8 +282,19 @@ public class PaymentsController : Controller
 
         if (!ModelState.IsValid)
         {
+            var registeredStudentIds = await _context.Payments
+                .Where(payment =>
+                    !payment.IsDeleted
+                    && payment.TargetYear == model.Year
+                    && payment.TargetMonth == model.Month)
+                .Select(payment => payment.StudentId)
+                .ToListAsync();
+
             model.StudentOptions = await _context.Students
-                .Where(student => !student.IsDeleted && student.Status == "在籍中")
+                .Where(student =>
+                    !student.IsDeleted
+                    && student.Status == "在籍中"
+                    && !registeredStudentIds.Contains(student.Id))
                 .OrderBy(student => student.Kana)
                 .ThenBy(student => student.Name)
                 .Select(student => new SelectListItem
@@ -280,7 +306,11 @@ public class PaymentsController : Controller
                 .ToListAsync();
 
             var query = _context.Payments
-                .Where(payment => !payment.IsDeleted && !payment.Student.IsDeleted && payment.TargetYear == model.Year && payment.TargetMonth == model.Month)
+                .Where(payment => 
+                    !payment.IsDeleted 
+                    && !payment.Student.IsDeleted 
+                    && payment.TargetYear == model.Year 
+                    && payment.TargetMonth == model.Month)
                 .AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(model.Keyword))
@@ -444,7 +474,10 @@ public class PaymentsController : Controller
         }
 
         var payment = await _context.Payments
-            .FirstOrDefaultAsync(payment => payment.Id == id && !payment.IsDeleted && !payment.Student.IsDeleted);
+            .FirstOrDefaultAsync(payment => 
+                payment.Id == id 
+                && !payment.IsDeleted 
+                && !payment.Student.IsDeleted);
 
         if (payment == null)
         {

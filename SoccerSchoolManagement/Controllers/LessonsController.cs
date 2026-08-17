@@ -63,6 +63,16 @@ public class LessonsController : Controller
             ReturnMonth = returnMonth
         };
 
+        var today = DateTime.Today;
+
+        if (returnYear.HasValue
+            && returnMonth.HasValue
+            && (returnYear.Value != today.Year
+            || returnMonth.Value != today.Month))
+        {
+            model.LessonDate = null;
+        }
+
         if (classId.HasValue)
         {
             var soccerClass = await _context.Classes

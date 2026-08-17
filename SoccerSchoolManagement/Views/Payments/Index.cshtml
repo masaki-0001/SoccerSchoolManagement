@@ -169,6 +169,10 @@
         @Model.Year 年 @Model.Month 月分の月謝登録
     </h2>
 
+    <p class="text-muted">
+        未登録：@Model.StudentOptions.Count 人
+    </p>
+
     <form asp-controller="Payments"
           asp-action="Index"
           method="post"
