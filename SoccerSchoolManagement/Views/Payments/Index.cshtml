@@ -2,6 +2,28 @@
 
 @{
     ViewData["Title"] = "月謝管理";
+
+    var hasPreviousMonth =
+        !(Model.Year == 2000 && Model.Month == 1);
+
+    var previousYear = Model.Month == 1
+        ? Model.Year - 1
+        : Model.Year;
+
+    var previousMonth = Model.Month == 1
+        ? 12
+        : Model.Month - 1;
+
+    var hasNextMonth =
+        !(Model.Year == 2100 && Model.Month == 12);
+
+    var nextYear = Model.Month == 12
+        ? Model.Year + 1
+        : Model.Year;
+
+    var nextMonth = Model.Month == 12
+        ? 1
+        : Model.Month + 1;
 }
 
 <div class="d-flex
@@ -21,6 +43,77 @@
        class="btn btn-outline-danger">
         未払い一覧
     </a>
+</div>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex
+            flex-column
+            flex-sm-row
+            justify-content-sm-between
+            align-items-stretch
+            align-items-sm-center
+            gap-3">
+
+            <div class="d-flex flex-wrap gap-2">
+                @if (hasPreviousMonth)
+                {
+                    <a asp-action="Index"
+                       asp-route-year="@previousYear"
+                       asp-route-month="@previousMonth"
+                       asp-route-keyword="@Model.Keyword"
+                       asp-route-statusFilter="@Model.StatusFilter"
+                       class="btn btn-outline-secondary">
+                        前月
+                    </a>
+                }
+                else
+                {
+                    <span class="btn btn-outline-secondary disabled">
+                        前月
+                    </span>
+                }
+
+                <a asp-action="Index"
+                   asp-route-year="@DateTime.Today.Year"
+                   asp-route-month="@DateTime.Today.Month"
+                   asp-route-keyword="@Model.Keyword"
+                   asp-route-statusFilter="@Model.StatusFilter"
+                   class="btn btn-outline-secondary">
+                    今月
+                </a>
+
+                @if (hasNextMonth)
+                {
+                    <a asp-action="Index"
+                       asp-route-year="@nextYear"
+                       asp-route-month="@nextMonth"
+                       asp-route-keyword="@Model.Keyword"
+                       asp-route-statusFilter="@Model.StatusFilter"
+                       class="btn btn-outline-secondary">
+                        次月
+                    </a>
+                }
+                else
+                {
+                    <span class="btn btn-outline-secondary disabled">
+                        次月
+                    </span>
+                }
+            </div>
+
+            <h2 class="h4 mb-0 text-center text-sm-end">
+                @(Model.Year)年 @(Model.Month)月
+            </h2>
+        </div>
+    </div>
 </div>
 
 <section class="mb-4">
@@ -329,37 +422,51 @@
                             </td>
 
                             <td>
-                                <form asp-controller="Payments"
-                                      asp-action="ChangeStatus"
-                                      method="post">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a asp-controller="Payments"
+                                       asp-action="Edit"
+                                       asp-route-id="@payment.Id"
+                                       asp-route-keyword="@Model.Keyword"
+                                       asp-route-statusFilter="@Model.StatusFilter"
+                                       asp-route-page="@Model.CurrentPage"
+                                       class="btn btn-sm btn-outline-primary">
+                                        修正
+                                    </a>
 
-                                    @Html.AntiForgeryToken()
+                                    <form asp-controller="Payments"
+                                          asp-action="ChangeStatus"
+                                          method="post">
 
-                                    <input type="hidden" name="id" value="@payment.Id" />
+                                        @Html.AntiForgeryToken()
 
-                                    <input type="hidden" name="year" value="@Model.Year" />
+                                        <input type="hidden" name="id" value="@payment.Id" />
 
-                                    <input type="hidden" name="month" value="@Model.Month" />
+                                        <input type="hidden" name="year" value="@Model.Year" />
 
-                                    <input type="hidden" name="keyword" value="@Model.Keyword" />
+                                        <input type="hidden" name="month" value="@Model.Month" />
 
-                                    <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+                                        <input type="hidden" name="keyword" value="@Model.Keyword" />
 
-                                    <input type="hidden" name="page" value="@Model.CurrentPage" />
+                                        <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
 
-                                    @if (payment.Status == "未払い")
-                                    {
-                                        <button type="submit" class="btn btn-sm btn-success">
-                                            支払済みにする
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary">
-                                            未払いに戻す
-                                        </button>
-                                    }
-                                </form>
+                                        <input type="hidden" name="page" value="@Model.CurrentPage" />
+
+                                        @if (payment.Status == "未払い")
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                支払済みにする
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    onclick="return confirm('支払済みを未払いに戻します。支払日も削除されます。よろしいですか？');">
+                                                未払いに戻す
+                                            </button>
+                                        }
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }

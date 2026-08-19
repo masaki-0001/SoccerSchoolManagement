@@ -48,7 +48,8 @@ public class LessonsController : Controller
         {
             Year = targetYear,
             Month = targetMonth,
-            Lessons = lessons
+            Lessons = lessons,
+            ClassOptions = await LoadClassOptionsAsync()
         };
 
         return View(model);

@@ -17,18 +17,37 @@
             </div>
 
             <div class="mb-3">
-                <label asp-for="ClassId"
-                       class="form-label">
+                <label asp-for="ClassId" class="form-label">
                     クラス
                 </label>
 
-                <select asp-for="ClassId"
-                        asp-items="Model.ClassOptions"
-                        class="form-select">
-                    <option value="">
-                        クラスを選択してください
-                    </option>
-                </select>
+                @if (Model.ClassId.HasValue)
+                {
+                    var selectedClassName = Model.ClassOptions
+                        .FirstOrDefault(option => option.Value == Model.ClassId.Value.ToString())
+                        ?.Text ?? "選択中のクラス";
+
+                    <input asp-for="ClassId" type="hidden" />
+
+                    <input type="text"
+                           value="@selectedClassName"
+                           class="form-control"
+                           readonly />
+                }
+                else
+                {
+                    <select asp-for="ClassId"
+                            asp-items="Model.ClassOptions"
+                            class="form-select">
+                        <option value="">
+                            クラスを選択してください
+                        </option>
+                    </select>
+                }
+
+                <span asp-validation-for="ClassId"
+                      class="text-danger">
+                </span>
 
                 <span asp-validation-for="ClassId"
                       class="text-danger">

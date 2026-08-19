@@ -1,0 +1,118 @@
+﻿@using SoccerSchoolManagement.ViewModels.Payments
+@model PaymentEditViewModel
+
+@{
+    ViewData["Title"] = "月謝編集";
+}
+
+<h1>月謝編集</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Edit"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id"
+                   type="hidden" />
+
+            <input asp-for="ReturnYear"
+                   type="hidden" />
+
+            <input asp-for="ReturnMonth"
+                   type="hidden" />
+
+            <input asp-for="Keyword"
+                   type="hidden" />
+
+            <input asp-for="StatusFilter"
+                   type="hidden" />
+
+            <input asp-for="Page"
+                   type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    生徒
+                </label>
+
+                <p class="form-control-plaintext">
+                    @Model.StudentName
+                </p>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    対象年月
+                </label>
+
+                <p class="form-control-plaintext">
+                    @Model.TargetYear 年 @Model.TargetMonth 月
+                </p>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Amount"
+                       class="form-label">
+                    請求額
+                </label>
+
+                <div class="input-group">
+                    <input asp-for="Amount"
+                           type="number"
+                           min="0"
+                           step="1"
+                           class="form-control" />
+
+                    <span class="input-group-text">
+                        円
+                    </span>
+                </div>
+
+                <span asp-validation-for="Amount"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Note"
+                       class="form-label">
+                    備考
+                </label>
+
+                <input asp-for="Note"
+                       class="form-control" />
+
+                <span asp-validation-for="Note"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mt-4 d-flex flex-column flex-sm-row gap-2">
+                <button type="submit"
+                        class="btn btn-primary">
+                    保存
+                </button>
+
+                <a asp-action="Index"
+                   asp-route-year="@Model.ReturnYear"
+                   asp-route-month="@Model.ReturnMonth"
+                   asp-route-keyword="@Model.Keyword"
+                   asp-route-statusFilter="@Model.StatusFilter"
+                   asp-route-page="@Model.Page"
+                   class="btn btn-secondary">
+                    キャンセル
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

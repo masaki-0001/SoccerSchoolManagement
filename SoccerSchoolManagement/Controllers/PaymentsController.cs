@@ -367,6 +367,8 @@ public class PaymentsController : Controller
 
         await _context.SaveChangesAsync();
 
+        TempData["SuccessMessage"] = "月謝を登録しました。";
+
         return RedirectToAction(
             nameof(Index),
             new
@@ -376,6 +378,136 @@ public class PaymentsController : Controller
                 keyword = model.Keyword,
                 statusFilter = model.StatusFilter,
                 page = model.CurrentPage
+            });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int? id, string? keyword, string statusFilter = "すべて", int page = 1)
+    {
+        if (!id.HasValue)
+        {
+            return NotFound();
+        }
+
+        if (!ValidStatusFilters.Contains(statusFilter))
+        {
+            statusFilter = "すべて";
+        }
+
+        if (page < 1)
+        {
+            page = 1;
+        }
+
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            keyword = null;
+        }
+        else
+        {
+            keyword = keyword.Trim();
+        }
+
+        var payment = await _context.Payments
+            .Include(payment => payment.Student)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(payment =>
+                payment.Id == id.Value
+                && !payment.IsDeleted
+                && !payment.Student.IsDeleted);
+
+        if (payment is null)
+        {
+            return NotFound();
+        }
+
+        var model = new PaymentEditViewModel
+        {
+            Id = payment.Id,
+            StudentName = payment.Student.Name,
+            TargetYear = payment.TargetYear,
+            TargetMonth = payment.TargetMonth,
+            Amount = payment.Amount,
+            Note = payment.Note,
+            ReturnYear = payment.TargetYear,
+            ReturnMonth = payment.TargetMonth,
+            Keyword = keyword,
+            StatusFilter = statusFilter,
+            Page = page
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, PaymentEditViewModel model)
+    {
+        if (id != model.Id)
+        {
+            return NotFound();
+        }
+
+        if (!ValidStatusFilters.Contains(model.StatusFilter))
+        {
+            model.StatusFilter = "すべて";
+        }
+
+        if (model.Page < 1)
+        {
+            model.Page = 1;
+        }
+
+        if (string.IsNullOrWhiteSpace(model.Keyword))
+        {
+            model.Keyword = null;
+        }
+        else
+        {
+            model.Keyword = model.Keyword.Trim();
+        }
+
+        var payment = await _context.Payments
+            .Include(payment => payment.Student)
+            .FirstOrDefaultAsync(payment =>
+                payment.Id == id
+                && !payment.IsDeleted
+                && !payment.Student.IsDeleted);
+
+        if (payment is null)
+        {
+            return NotFound();
+        }
+
+        model.StudentName = payment.Student.Name;
+        model.TargetYear = payment.TargetYear;
+        model.TargetMonth = payment.TargetMonth;
+        model.ReturnYear = payment.TargetYear;
+        model.ReturnMonth = payment.TargetMonth;
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        payment.Amount = model.Amount!.Value;
+
+        payment.Note = string.IsNullOrWhiteSpace(model.Note)
+            ? null
+            : model.Note.Trim();
+
+        payment.UpdatedAt = DateTime.Now;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index),
+            new
+            {
+                year = payment.TargetYear,
+                month = payment.TargetMonth,
+                keyword = model.Keyword,
+                statusFilter = model.StatusFilter,
+                page = model.Page
             });
     }
 

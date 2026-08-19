@@ -37,12 +37,36 @@
 
     <h1 class="mb-0">練習予定一覧</h1>
 
-    <a asp-action="Create"
-       asp-route-returnYear="@Model.Year"
-       asp-route-returnMonth="@Model.Month"
-       class="btn btn-primary">
-        新規予定登録
-    </a>
+    <form asp-action="Create"
+          method="get"
+          class="d-flex flex-column flex-sm-row gap-2">
+
+        <input type="hidden"
+               name="returnYear"
+               value="@Model.Year" />
+
+        <input type="hidden"
+               name="returnMonth"
+               value="@Model.Month" />
+
+        <select name="classId"
+                class="form-select"
+                required>
+            <option value="">クラスを選択</option>
+
+            @foreach (var classOption in Model.ClassOptions)
+            {
+                <option value="@classOption.Value">
+                    @classOption.Text
+                </option>
+            }
+        </select>
+
+        <button type="submit"
+                class="btn btn-primary text-nowrap">
+            新規予定登録
+        </button>
+    </form>
 </div>
 
 <div class="card mb-3">
