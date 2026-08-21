@@ -646,6 +646,8 @@ public class StudentsController : Controller
 
         await _context.SaveChangesAsync();
 
+        TempData["SuccessMessage"] = "生徒情報を更新しました。";
+
         return RedirectToAction(
             nameof(Index),
             new

@@ -25,8 +25,14 @@ public class PaymentsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(int? year, int? month, string? keyword, string statusFilter = "すべて", int page = 1)
-    {
+    public async Task<IActionResult> Index(
+        int? year,
+        int? month,
+        string? keyword,
+        string? studentKeyword,
+        string statusFilter = "すべて",
+        int page = 1)
+        {
         const int pageSize = 10;
 
         if (page < 1)
@@ -63,6 +69,15 @@ public class PaymentsController : Controller
             query = query.Where(payment => payment.Student.Name.Contains(keyword) || payment.Student.Kana.Contains(keyword));
         }
 
+        if (string.IsNullOrWhiteSpace(studentKeyword))
+        {
+            studentKeyword = null;
+        }
+        else
+        {
+            studentKeyword = studentKeyword.Trim();
+        }
+
         if (statusFilter != "すべて")
         {
             query = query.Where(payment => payment.Status == statusFilter);
@@ -94,11 +109,21 @@ public class PaymentsController : Controller
             .Select(payment => payment.StudentId)
             .ToListAsync();
 
-        var studentOptions = await _context.Students
+        var studentQuery = _context.Students
             .Where(student =>
                 !student.IsDeleted
                 && student.Status == "在籍中"
                 && !registeredStudentIds.Contains(student.Id))
+           .AsNoTracking();
+
+        if (studentKeyword is not null)
+        {
+            studentQuery = studentQuery.Where(student =>
+                student.Name.Contains(studentKeyword)
+                || student.Kana.Contains(studentKeyword));
+        }
+
+        var studentOptions = await studentQuery
             .OrderBy(student => student.Kana)
             .ThenBy(student => student.Name)
             .Select(student => new SelectListItem
@@ -106,7 +131,6 @@ public class PaymentsController : Controller
                 Value = student.Id.ToString(),
                 Text = student.Name
             })
-            .AsNoTracking()
             .ToListAsync();
 
         var model = new PaymentIndexViewModel
@@ -114,6 +138,7 @@ public class PaymentsController : Controller
             Year = targetYear,
             Month = targetMonth,
             Keyword = keyword,
+            StudentKeyword = studentKeyword,
             StatusFilter = statusFilter,
             StudentOptions = studentOptions,
             Payments = payments,
@@ -246,6 +271,15 @@ public class PaymentsController : Controller
             model.Keyword = model.Keyword.Trim();
         }
 
+        if (string.IsNullOrWhiteSpace(model.StudentKeyword))
+        {
+            model.StudentKeyword = null;
+        }
+        else
+        {
+            model.StudentKeyword = model.StudentKeyword.Trim();
+        }
+
         if (model.CurrentPage < 1)
         {
             model.CurrentPage = 1;
@@ -290,11 +324,21 @@ public class PaymentsController : Controller
                 .Select(payment => payment.StudentId)
                 .ToListAsync();
 
-            model.StudentOptions = await _context.Students
+            var studentQuery = _context.Students
                 .Where(student =>
                     !student.IsDeleted
                     && student.Status == "在籍中"
                     && !registeredStudentIds.Contains(student.Id))
+                .AsNoTracking();
+
+            if (model.StudentKeyword is not null)
+            {
+                studentQuery = studentQuery.Where(student =>
+                    student.Name.Contains(model.StudentKeyword)
+                    || student.Kana.Contains(model.StudentKeyword));
+            }
+
+            model.StudentOptions = await studentQuery
                 .OrderBy(student => student.Kana)
                 .ThenBy(student => student.Name)
                 .Select(student => new SelectListItem
@@ -302,7 +346,6 @@ public class PaymentsController : Controller
                     Value = student.Id.ToString(),
                     Text = student.Name
                 })
-                .AsNoTracking()
                 .ToListAsync();
 
             var query = _context.Payments
@@ -639,6 +682,8 @@ public class PaymentsController : Controller
         payment.UpdatedAt = DateTime.Now;
 
         await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "支払状況を変更しました。";
 
         return RedirectToAction(
             nameof(Index),

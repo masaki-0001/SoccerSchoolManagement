@@ -262,83 +262,158 @@
         @Model.Year 年 @Model.Month 月分の月謝登録
     </h2>
 
+    @if (string.IsNullOrWhiteSpace(Model.StudentKeyword))
+    {
     <p class="text-muted">
         未登録：@Model.StudentOptions.Count 人
     </p>
+    }
+    else
+    {
+    <p class="text-muted">
+        検索結果：@Model.StudentOptions.Count 人
+    </p>
+    }
 
     <form asp-controller="Payments"
           asp-action="Index"
-          method="post"
-          class="row g-3">
+          method="get"
+          class="row g-2 align-items-end mb-3">
 
-        @Html.AntiForgeryToken()
+    <input type="hidden" name="year" value="@Model.Year" />
+    <input type="hidden" name="month" value="@Model.Month" />
+    <input type="hidden" name="keyword" value="@Model.Keyword" />
+    <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+    <input type="hidden" name="page" value="@Model.CurrentPage" />
 
-        <input asp-for="Year" type="hidden" />
-        <input asp-for="Month" type="hidden" />
-        <input asp-for="Keyword" type="hidden" />
-        <input asp-for="StatusFilter" type="hidden" />
-        <input asp-for="CurrentPage" type="hidden" />
+    <div class="col-md-5">
+        <label for="studentKeyword"
+               class="form-label">
+            登録する生徒を検索
+        </label>
 
-        <div asp-validation-summary="ModelOnly"
-             class="text-danger">
+        <input id="studentKeyword"
+               name="studentKeyword"
+               type="text"
+               value="@Model.StudentKeyword"
+               class="form-control"
+               placeholder="氏名・ふりがな" />
+    </div>
+
+    <div class="col-auto">
+        <button type="submit"
+                class="btn btn-outline-primary">
+            検索
+        </button>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StudentKeyword))
+    {
+        <div class="col-auto">
+            <a asp-controller="Payments"
+               asp-action="Index"
+               asp-route-year="@Model.Year"
+               asp-route-month="@Model.Month"
+               asp-route-keyword="@Model.Keyword"
+               asp-route-statusFilter="@Model.StatusFilter"
+               asp-route-page="@Model.CurrentPage"
+               class="btn btn-outline-secondary">
+                すべて表示
+            </a>
         </div>
-
-        <div class="col-md-4">
-            <label asp-for="StudentId" class="form-label">
-                生徒
-            </label>
-
-            <select asp-for="StudentId"
-                    asp-items="Model.StudentOptions"
-                    class="form-select">
-
-                <option value="">生徒を選択してください</option>
-            </select>
-
-            <span asp-validation-for="StudentId"
-                  class="text-danger">
-            </span>
-        </div>
-
-        <div class="col-md-3">
-            <label asp-for="Amount" class="form-label">
-                請求額
-            </label>
-
-            <div class="input-group">
-                <input asp-for="Amount"
-                       type="number"
-                       min="0"
-                       step="1"
-                       class="form-control" />
-
-                <span class="input-group-text">円</span>
-            </div>
-
-            <span asp-validation-for="Amount"
-                  class="text-danger">
-            </span>
-        </div>
-
-        <div class="col-md-5">
-            <label asp-for="Note" class="form-label">
-                備考
-            </label>
-
-            <input asp-for="Note"
-                   class="form-control" />
-
-            <span asp-validation-for="Note"
-                  class="text-danger">
-            </span>
-        </div>
-
-        <div class="col-12 d-grid d-sm-block">
-            <button type="submit" class="btn btn-primary">
-                登録
-            </button>
-        </div>
+    }
     </form>
+
+    @if (Model.StudentOptions.Count == 0)
+    {
+        <div class="alert alert-info">
+            @if (!string.IsNullOrWhiteSpace(Model.StudentKeyword))
+            {
+                <span>検索条件に一致する生徒はいません。</span>
+            }
+            else
+            {
+                <span>月謝を登録できる生徒はいません。</span>
+            }
+        </div>
+    }
+    else
+    {
+    <form asp-controller="Payments"
+            asp-action="Index"
+            method="post"
+            class="row g-3">
+
+    @Html.AntiForgeryToken()
+
+    <input asp-for="Year" type="hidden" />
+    <input asp-for="Month" type="hidden" />
+    <input asp-for="Keyword" type="hidden" />
+    <input asp-for="StudentKeyword" type="hidden" />
+    <input asp-for="StatusFilter" type="hidden" />
+    <input asp-for="CurrentPage" type="hidden" />
+
+    <div asp-validation-summary="ModelOnly"
+            class="text-danger">
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="StudentId" class="form-label">
+            生徒
+        </label>
+
+        <select asp-for="StudentId"
+                asp-items="Model.StudentOptions"
+                class="form-select">
+
+            <option value="">生徒を選択してください</option>
+        </select>
+
+        <span asp-validation-for="StudentId"
+                class="text-danger">
+        </span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="Amount" class="form-label">
+            請求額
+        </label>
+
+        <div class="input-group">
+            <input asp-for="Amount"
+                    type="number"
+                    min="0"
+                    step="1"
+                    class="form-control" />
+
+            <span class="input-group-text">円</span>
+        </div>
+
+        <span asp-validation-for="Amount"
+                class="text-danger">
+        </span>
+    </div>
+
+    <div class="col-md-5">
+        <label asp-for="Note" class="form-label">
+            備考
+        </label>
+
+        <input asp-for="Note"
+                class="form-control" />
+
+        <span asp-validation-for="Note"
+                class="text-danger">
+        </span>
+    </div>
+
+    <div class="col-12 d-grid d-sm-block">
+        <button type="submit" class="btn btn-primary">
+            登録
+        </button>
+    </div>
+    </form>
+	}
 </section>
 
 <section>

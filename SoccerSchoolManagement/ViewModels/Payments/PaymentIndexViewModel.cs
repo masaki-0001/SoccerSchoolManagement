@@ -14,6 +14,8 @@ public class PaymentIndexViewModel
 
     public string? Keyword { get; set; }
 
+    public string? StudentKeyword { get; set; }
+
     public string StatusFilter { get; set; } = "すべて";
 
     [Required(ErrorMessage = "生徒を選択してください。")]
