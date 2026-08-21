@@ -9,6 +9,8 @@ public class StudentClassCreateViewModel:IValidatableObject
 
     public string ClassName { get; set; } = string.Empty;
 
+    public string? Keyword { get; set; }
+
     [Required(ErrorMessage = "生徒を選択してください。")]
     public int? StudentId { get; set; }
 

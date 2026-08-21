@@ -200,7 +200,7 @@ public class ClassesController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> AddMembership(int? id)
+    public async Task<IActionResult> AddMembership(int? id, string? keyword)
     {
         if (!id.HasValue)
         {
@@ -227,6 +227,7 @@ public class ClassesController : Controller
         {
             ClassId = soccerClass.Id,
             ClassName = soccerClass.Name,
+            Keyword = keyword,
             StartDate = DateTime.Today
         };
 
@@ -332,6 +333,8 @@ public class ClassesController : Controller
             return View(model);
         }
 
+        TempData["SuccessMessage"] = "クラス所属を登録しました。";
+
         return RedirectToAction(nameof(Details), new {id});
         }
 
@@ -421,6 +424,8 @@ public class ClassesController : Controller
 
             await _context.SaveChangesAsync();
 
+            TempData["SuccessMessage"] = "クラス所属を終了しました。";
+
             return RedirectToAction(nameof(Details), new {id = membership.ClassId});
         }
 
@@ -482,8 +487,21 @@ public class ClassesController : Controller
                 studentClass.StudentId)
             .ToListAsync();
 
-        var students = await _context.Students
-            .Where(student => !student.IsDeleted && student.Status != "退会済み" && !currentStudentIds.Contains(student.Id))
+        var studentsQuery = _context.Students
+            .Where(student => !student.IsDeleted
+                && student.Status != "退会済み"
+                && !currentStudentIds.Contains(student.Id));
+
+        if (!string.IsNullOrWhiteSpace(model.Keyword))
+        {
+            var keyword = model.Keyword.Trim();
+
+            studentsQuery = studentsQuery
+                .Where(student => student.Name.Contains(keyword)
+                    || student.Kana.Contains(keyword));
+        }
+
+        var students = await studentsQuery
             .AsNoTracking()
             .OrderBy(student => student.Kana)
             .ThenBy(student => student.Name)

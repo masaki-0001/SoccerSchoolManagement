@@ -394,6 +394,8 @@ public class StudentsController : Controller
         _context.Students.Add(student);
         await _context.SaveChangesAsync();
 
+        TempData["SuccessMessage"] = "生徒を登録しました。";
+
         return RedirectToAction(nameof(Index));
     }
 

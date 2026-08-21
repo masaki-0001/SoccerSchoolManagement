@@ -10,10 +10,54 @@
     所属先クラス：@Model.ClassName
 </p>
 
+<form asp-action="AddMembership"
+      asp-route-id="@Model.ClassId"
+      method="get"
+      class="mb-4">
+
+    <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label asp-for="Keyword"
+                   class="form-label">
+                生徒検索
+            </label>
+
+            <input asp-for="Keyword"
+                   class="form-control"
+                   placeholder="氏名・ふりがな" />
+        </div>
+
+        <div class="col-auto">
+            <button type="submit"
+                    class="btn btn-outline-primary">
+                検索
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Keyword))
+        {
+            <div class="col-auto">
+                <a asp-action="AddMembership"
+                   asp-route-id="@Model.ClassId"
+                   class="btn btn-outline-secondary">
+                    すべて表示
+                </a>
+            </div>
+        }
+    </div>
+</form>
+
 @if (Model.StudentOptions.Count == 0)
 {
     <div class="alert alert-info">
-        所属させることができる生徒はいません。
+        @if (!string.IsNullOrWhiteSpace(Model.Keyword))
+        {
+            <span>検索条件に一致する生徒はいません。</span>
+        }
+        else
+        {
+            <span>所属させることができる生徒はいません。</span>
+        }
     </div>
 
     <a asp-action="Details"
@@ -31,6 +75,9 @@ else
                   method="post">
 
                 <input asp-for="ClassId"
+                       type="hidden" />
+
+                <input asp-for="Keyword"
                        type="hidden" />
 
                 <div asp-validation-summary="ModelOnly"
