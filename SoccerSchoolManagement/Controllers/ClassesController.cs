@@ -233,6 +233,13 @@ public class ClassesController : Controller
 
         await LoadStudentOptionsAsync(model);
 
+        if (!string.IsNullOrWhiteSpace(model.Keyword)
+            && model.StudentOptions.Count == 1
+            && int.TryParse(model.StudentOptions[0].Value, out var studentId))
+        {
+            model.StudentId = studentId;
+        }
+
         return View(model);
     }
 

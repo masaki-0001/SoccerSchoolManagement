@@ -50,6 +50,8 @@ public class PaymentsController : Controller
             return BadRequest();
         }
 
+        var nextMonthStart = new DateTime(targetYear, targetMonth, 1).AddMonths(1);
+
         if (!ValidStatusFilters.Contains(statusFilter))
         {
             statusFilter = "すべて";
@@ -113,6 +115,7 @@ public class PaymentsController : Controller
             .Where(student =>
                 !student.IsDeleted
                 && student.Status == "在籍中"
+                && student.JoinedAt < nextMonthStart
                 && !registeredStudentIds.Contains(student.Id))
            .AsNoTracking();
 
@@ -133,6 +136,13 @@ public class PaymentsController : Controller
             })
             .ToListAsync();
 
+        int? selectedStudentId = null;
+
+        if (studentKeyword is not null && studentOptions.Count == 1)
+        {
+            selectedStudentId = int.Parse(studentOptions[0].Value);
+        }
+
         var model = new PaymentIndexViewModel
         {
             Year = targetYear,
@@ -140,6 +150,7 @@ public class PaymentsController : Controller
             Keyword = keyword,
             StudentKeyword = studentKeyword,
             StatusFilter = statusFilter,
+            StudentId = selectedStudentId,
             StudentOptions = studentOptions,
             Payments = payments,
             CurrentPage = page,
@@ -257,6 +268,8 @@ public class PaymentsController : Controller
             return BadRequest();
         }
 
+        var nextMonthStart = new DateTime(model.Year, model.Month, 1).AddMonths(1);
+
         if (!ValidStatusFilters.Contains(model.StatusFilter))
         {
             model.StatusFilter = "すべて";
@@ -291,7 +304,8 @@ public class PaymentsController : Controller
                 .AnyAsync(student => 
                     student.Id == model.StudentId 
                     && !student.IsDeleted 
-                    && student.Status == "在籍中");
+                    && student.Status == "在籍中"
+                    && student.JoinedAt < nextMonthStart);
 
             if (!studentExists)
             {
@@ -328,6 +342,7 @@ public class PaymentsController : Controller
                 .Where(student =>
                     !student.IsDeleted
                     && student.Status == "在籍中"
+                    && student.JoinedAt < nextMonthStart
                     && !registeredStudentIds.Contains(student.Id))
                 .AsNoTracking();
 

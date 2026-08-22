@@ -22,13 +22,25 @@ public class HomeController : Controller
         var today = DateTime.Today;
 
         var activeStudentCount = await _context.Students
-            .CountAsync(student => !student.IsDeleted && student.Status == "在籍中");
+            .CountAsync(student => 
+                !student.IsDeleted 
+                && student.Status == "在籍中");
 
         var unpaidCount = await _context.Payments
-            .CountAsync(payment => !payment.IsDeleted && payment.Status == "未払い" && !payment.Student.IsDeleted);
+            .CountAsync(payment =>
+                !payment.IsDeleted
+                && payment.Status == "未払い"
+                && !payment.Student.IsDeleted
+                && payment.TargetYear == today.Year
+                && payment.TargetMonth == today.Month);
 
         var unpaidTotalAmount = await _context.Payments
-            .Where(payment => !payment.IsDeleted && payment.Status == "未払い" && !payment.Student.IsDeleted)
+            .Where(payment =>
+                !payment.IsDeleted
+                && payment.Status == "未払い"
+                && !payment.Student.IsDeleted
+                && payment.TargetYear == today.Year
+                && payment.TargetMonth == today.Month)
             .SumAsync(payment => payment.Amount);
 
         var lessonEntities = await _context.Lessons
