@@ -42,6 +42,13 @@
     </div>
 </div>
 
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
 <form asp-controller="Payments"
       asp-action="Unpaid"
       method="get"
@@ -131,7 +138,7 @@ else
                     <th>生徒名</th>
                     <th>請求額</th>
                     <th>備考</th>
-                    <th>月謝管理</th>
+                    <th>操作</th>
                 </tr>
             </thead>
 
@@ -164,14 +171,48 @@ else
                         </td>
 
                         <td>
-                            <a asp-controller="Payments"
-                               asp-action="Index"
-                               asp-route-year="@payment.TargetYear"
-                               asp-route-month="@payment.TargetMonth"
-                               asp-route-statusFilter="未払い"
-                               class="btn btn-sm btn-outline-primary">
-                                対象月を開く
-                            </a>
+                            <div class="d-flex flex-wrap gap-2">
+                                <form asp-controller="Payments"
+                                      asp-action="ChangeStatus"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@payment.Id" />
+
+                                    <input type="hidden"
+                                           name="year"
+                                           value="@Model.Year" />
+
+                                    <input type="hidden"
+                                           name="month"
+                                           value="@Model.Month" />
+
+                                    <input type="hidden"
+                                           name="page"
+                                           value="@Model.CurrentPage" />
+
+                                    <input type="hidden"
+                                           name="returnToUnpaid"
+                                           value="true" />
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-success">
+                                        支払済みにする
+                                    </button>
+                                </form>
+
+                                <a asp-controller="Payments"
+                                   asp-action="Index"
+                                   asp-route-year="@payment.TargetYear"
+                                   asp-route-month="@payment.TargetMonth"
+                                   asp-route-statusFilter="未払い"
+                                   class="btn btn-sm btn-outline-primary">
+                                    対象月を開く
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 }

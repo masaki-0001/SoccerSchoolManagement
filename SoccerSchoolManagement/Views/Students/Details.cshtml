@@ -125,6 +125,28 @@
 </div>
 
 <div class="card mt-4">
+    <div class="card-header">現在所属クラス</div>
+    <div class="card-body">
+        @if (Model.StudentClasses.Any())
+        {
+            <ul class="mb-0">
+                @foreach (var studentClass in Model.StudentClasses
+                    .OrderBy(studentClass => studentClass.SoccerClass.Name))
+                {
+                    <li>@studentClass.SoccerClass.Name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted mb-0">
+                現在所属しているクラスはありません。
+            </p>
+        }
+    </div>
+</div>
+
+<div class="card mt-4">
     <div class="card-header">備考</div>
     <div class="card-body">
         @if (string.IsNullOrWhiteSpace(Model.Note))

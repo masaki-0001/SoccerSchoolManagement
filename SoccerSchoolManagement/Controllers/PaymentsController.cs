@@ -637,7 +637,14 @@ public class PaymentsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangeStatus(int id,int year,int month, string? keyword, string statusFilter = "すべて", int page = 1)
+    public async Task<IActionResult> ChangeStatus(
+    int id,
+    int year,
+    int month,
+    string? keyword,
+    string statusFilter = "すべて",
+    int page = 1,
+    bool returnToUnpaid = false)
     {
         if (year < 2000 || year > 2100 || month < 1 || month > 12)
         {
@@ -699,6 +706,18 @@ public class PaymentsController : Controller
         await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "支払状況を変更しました。";
+
+        if (returnToUnpaid)
+        {
+            return RedirectToAction(
+                nameof(Unpaid),
+                new
+                {
+                    year,
+                    month,
+                    page
+                });
+        }
 
         return RedirectToAction(
             nameof(Index),

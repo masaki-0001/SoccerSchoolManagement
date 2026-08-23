@@ -263,6 +263,9 @@ public class StudentsController : Controller
 
         var student = await _context.Students
             .AsNoTracking()
+            .Include(student => student.StudentClasses
+            .Where(studentClass => !studentClass.IsDeleted && !studentClass.EndDate.HasValue))
+            .ThenInclude(studentClass => studentClass.SoccerClass)
             .FirstOrDefaultAsync(student => student.Id == id.Value && !student.IsDeleted);
 
         if (student is null)
