@@ -305,7 +305,8 @@
                                 <td>
                                     <a asp-controller="Students"
                                        asp-action="Details"
-                                       asp-route-id="@membership.StudentId">
+                                       asp-route-id="@membership.StudentId"
+                                       asp-route-returnClassId="@soccerClass.Id">
                                         @membership.Student.Name
                                     </a>
                                 </td>
@@ -399,7 +400,8 @@
                                 <td>
                                     <a asp-controller="Students"
                                        asp-action="Details"
-                                       asp-route-id="@membership.StudentId">
+                                       asp-route-id="@membership.StudentId"
+                                       asp-route-returnClassId="@soccerClass.Id">
                                         @membership.Student.Name
                                     </a>
                                 </td>

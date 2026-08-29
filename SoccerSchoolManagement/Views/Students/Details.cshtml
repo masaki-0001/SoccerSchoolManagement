@@ -8,6 +8,9 @@
     var statusFilter = ViewData["StatusFilter"] as string ?? "すべて";
     var classFilter = ViewData["ClassFilter"] is int classValue ? classValue : (int?)null;
     var currentPage = ViewData["Page"] is int pageValue ? pageValue : 1;
+    var returnClassId = ViewData["ReturnClassId"] is int returnClassValue
+        ? returnClassValue
+        : (int?)null;
 }
 
 <div class="d-flex
@@ -32,7 +35,8 @@
            asp-route-statusFilter="@statusFilter"
            asp-route-classFilter="@classFilter"
            asp-route-page="@currentPage"
-           class="btn btn-primary">編集</a>
+           class="btn btn-primary">編集
+       </a>
 
         <a asp-action="Delete"
            asp-route-id="@Model.Id"
@@ -41,15 +45,30 @@
            asp-route-statusFilter="@statusFilter"
            asp-route-classFilter="@classFilter"
            asp-route-page="@currentPage"
-           class="btn btn-outline-danger">削除</a>
+           class="btn btn-outline-danger">削除
+       </a>
 
-        <a asp-action="Index"
-           asp-route-keyword="@keyword"
-           asp-route-gradeFilter="@gradeFilter"
-           asp-route-statusFilter="@statusFilter"
-           asp-route-classFilter="@classFilter"
-           asp-route-page="@currentPage"
-           class="btn btn-secondary">一覧へ戻る</a>    
+        @if (returnClassId.HasValue)
+        {
+            <a asp-controller="Classes"
+               asp-action="Details"
+               asp-route-id="@returnClassId.Value"
+               class="btn btn-secondary">
+                クラス詳細へ戻る
+            </a>
+        }
+        else
+        {
+            <a asp-action="Index"
+               asp-route-keyword="@keyword"
+               asp-route-gradeFilter="@gradeFilter"
+               asp-route-statusFilter="@statusFilter"
+               asp-route-classFilter="@classFilter"
+               asp-route-page="@currentPage"
+               class="btn btn-secondary">
+                一覧へ戻る
+            </a>
+        }
     </div>
 </div>
 

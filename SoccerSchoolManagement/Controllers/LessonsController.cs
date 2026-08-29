@@ -99,7 +99,7 @@ public class LessonsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(LessonCreateViewModel model)
+    public async Task<IActionResult> Create(LessonCreateViewModel model, bool continueRegistration = false)
     {
         if (model.ClassId.HasValue)
         {
@@ -166,6 +166,20 @@ public class LessonsController : Controller
             model.ClassOptions = await LoadClassOptionsAsync();
 
             return View(model);
+        }
+
+        if (continueRegistration)
+        {
+            TempData["SuccessMessage"] = "練習予定を登録しました。";
+
+            return RedirectToAction(
+                nameof(Create),
+                new
+                {
+                    classId = lesson.ClassId,
+                    returnYear = lesson.LessonDate.Year,
+                    returnMonth = lesson.LessonDate.Month
+                });
         }
 
         return RedirectToAction(nameof(Index),

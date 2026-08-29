@@ -7,6 +7,13 @@
 
 <h1>練習予定登録</h1>
 
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
 <div class="row">
     <div class="col-lg-8">
         <form asp-action="Create" method="post">
@@ -170,12 +177,21 @@
 
             <div class="mt-4 d-flex flex-column flex-sm-row gap-2">
                 <button type="submit"
+                        name="continueRegistration"
+                        value="false"
                         class="btn btn-primary">
                     登録
                 </button>
 
+                <button type="submit"
+                        name="continueRegistration"
+                        value="true"
+                        class="btn btn-outline-primary">
+                    登録して同じクラスを続ける
+                </button>
+
                 <a asp-action="Index"
-				   asp-route-year="@Model.ReturnYear"
+                   asp-route-year="@Model.ReturnYear"
                    asp-route-month="@Model.ReturnMonth"
                    class="btn btn-secondary">
                     一覧へ戻る

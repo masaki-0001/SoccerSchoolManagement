@@ -249,12 +249,13 @@ public class StudentsController : Controller
 
     [HttpGet]
     public async Task<IActionResult> Details(
-        int? id,
-        string? keyword,
-        string gradeFilter = "すべて",
-        string statusFilter = "すべて",
-        int? classFilter = null,
-        int page = 1)
+    int? id,
+    string? keyword,
+    string gradeFilter = "すべて",
+    string statusFilter = "すべて",
+    int? classFilter = null,
+    int page = 1,
+    int? returnClassId = null)
     {
         if (!id.HasValue)
         {
@@ -278,6 +279,7 @@ public class StudentsController : Controller
         ViewData["StatusFilter"] = statusFilter;
         ViewData["ClassFilter"] = classFilter;
         ViewData["Page"] = page;
+        ViewData["ReturnClassId"] = returnClassId;
 
         return View(student);
     }
