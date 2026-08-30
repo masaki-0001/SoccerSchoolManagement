@@ -9,6 +9,7 @@
     var statusFilter = ViewData["StatusFilter"] as string ?? "すべて";
     var classFilter = ViewData["ClassFilter"] is int classValue ? classValue : (int?)null;
     var currentPage = ViewData["Page"] is int pageValue ? pageValue : 1;
+    var returnClassId = ViewData["ReturnClassId"] as int?;
 }
 
 <h1>生徒編集</h1>
@@ -163,13 +164,27 @@
                         それでも保存する
                     </button>
                 }
-                <a asp-action="Index"
-                   asp-route-keyword="@keyword"
-                   asp-route-gradeFilter="@gradeFilter"
-                   asp-route-statusFilter="@statusFilter"
-                   asp-route-classFilter="@classFilter"
-                   asp-route-page="@currentPage"
-                   class="btn btn-secondary">キャンセル</a>
+                @if (returnClassId.HasValue)
+                {
+                    <a asp-controller="Classes"
+                       asp-action="Details"
+                       asp-route-id="@returnClassId.Value"
+                       class="btn btn-secondary">
+                        キャンセル
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index"
+                       asp-route-keyword="@keyword"
+                       asp-route-gradeFilter="@gradeFilter"
+                       asp-route-statusFilter="@statusFilter"
+                       asp-route-classFilter="@classFilter"
+                       asp-route-page="@currentPage"
+                       class="btn btn-secondary">
+                        キャンセル
+                    </a>
+                }
             </div>
         </form>
     </div>

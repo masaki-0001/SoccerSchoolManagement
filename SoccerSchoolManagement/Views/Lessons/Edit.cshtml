@@ -15,6 +15,7 @@
 
             <input asp-for="ReturnYear" type="hidden" />
             <input asp-for="ReturnMonth" type="hidden" />
+            <input asp-for="ReturnToClasses" type="hidden" />
 
             <input asp-for="Id"
                    type="hidden" />
@@ -162,12 +163,23 @@
                     保存
                 </button>
 
-                <a asp-action="Index"
-                   asp-route-year="@Model.ReturnYear"
-                   asp-route-month="@Model.ReturnMonth"
-                   class="btn btn-secondary">
-                    一覧へ戻る
-                </a>
+                @if (Model.ReturnToClasses)
+                {
+                    <a asp-controller="Classes"
+                       asp-action="Index"
+                       class="btn btn-secondary">
+                        クラス一覧へ戻る
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index"
+                       asp-route-year="@Model.ReturnYear"
+                       asp-route-month="@Model.ReturnMonth"
+                       class="btn btn-secondary">
+                        一覧へ戻る
+                    </a>
+                }
             </div>
         </form>
     </div>

@@ -34,6 +34,7 @@
             <a asp-controller="Lessons"
                asp-action="Create"
                asp-route-classId="@soccerClass.Id"
+               asp-route-returnToClasses="true"
                class="btn btn-info">
                 練習予定を登録
             </a>
@@ -255,6 +256,7 @@
                                     <a asp-controller="Lessons"
                                        asp-action="Edit"
                                        asp-route-id="@lesson.Id"
+                                       asp-route-returnToClasses="true"
                                        class="btn
                                         btn-outline-secondary
                                         btn-sm">

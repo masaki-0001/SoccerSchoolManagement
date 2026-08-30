@@ -47,6 +47,8 @@ public class LessonCreateViewModel : IValidatableObject
 
     public int? ReturnMonth { get; set; }
 
+    public bool ReturnToClasses { get; set; }
+
     public List<SelectListItem> ClassOptions { get; set; } = new();
 
     public IEnumerable<ValidationResult> Validate(

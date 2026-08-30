@@ -56,12 +56,13 @@ public class LessonsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create(int? classId, int? returnYear, int? returnMonth)
+    public async Task<IActionResult> Create(int? classId, int? returnYear, int? returnMonth, bool returnToClasses = false)
     {
         var model = new LessonCreateViewModel
         {
             ReturnYear = returnYear,
-            ReturnMonth = returnMonth
+            ReturnMonth = returnMonth,
+            ReturnToClasses = returnToClasses
         };
 
         var today = DateTime.Today;
@@ -178,8 +179,14 @@ public class LessonsController : Controller
                 {
                     classId = lesson.ClassId,
                     returnYear = lesson.LessonDate.Year,
-                    returnMonth = lesson.LessonDate.Month
+                    returnMonth = lesson.LessonDate.Month,
+                    returnToClasses = model.ReturnToClasses
                 });
+        }
+
+        if (model.ReturnToClasses)
+        {
+            return RedirectToAction("Index", "Classes");
         }
 
         return RedirectToAction(nameof(Index),
@@ -191,7 +198,7 @@ public class LessonsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int? id, bool returnToClasses = false)
     {
         if (!id.HasValue)
         {
@@ -220,6 +227,7 @@ public class LessonsController : Controller
             Note = lesson.Note,
             ReturnYear = lesson.LessonDate.Year,
             ReturnMonth = lesson.LessonDate.Month,
+            ReturnToClasses = returnToClasses,
             ClassOptions = await LoadClassOptionsAsync(lesson.ClassId)
         };
 
@@ -325,13 +333,18 @@ public class LessonsController : Controller
             return View(model);
         }
 
+        if (model.ReturnToClasses)
+        {
+            return RedirectToAction("Index", "Classes");
+        }
+
         return RedirectToAction(nameof(Index),
             new
             {
                 year = lesson.LessonDate.Year,
                 month = lesson.LessonDate.Month
             });
-        }
+    }
 
     private async Task<List<SelectListItem>>LoadClassOptionsAsync(int? includedClassId = null)
     {
