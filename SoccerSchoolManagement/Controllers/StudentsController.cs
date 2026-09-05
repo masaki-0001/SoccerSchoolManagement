@@ -285,9 +285,15 @@ public class StudentsController : Controller
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        return View(new StudentCreateViewModel());
+        var model = new StudentCreateViewModel
+        {
+            Status = "在籍中",
+            ClassOptions = await LoadActiveClassOptionsAsync()
+        };
+
+        return View(model);
     }
 
     [HttpPost]
@@ -296,6 +302,22 @@ public class StudentsController : Controller
     {
         if (!ModelState.IsValid)
         {
+            model.ClassOptions = await LoadActiveClassOptionsAsync();
+
+            return View(model);
+        }
+
+        var classIsAvailable = await _context.Classes
+            .AnyAsync(soccerClass => soccerClass.Id == model.ClassId!.Value && !soccerClass.IsDeleted && soccerClass.IsActive);
+
+        if (!classIsAvailable)
+        {
+            ModelState.AddModelError(
+                nameof(StudentCreateViewModel.ClassId),
+                "選択したクラスは現在使用できません。");
+
+            model.ClassOptions = await LoadActiveClassOptionsAsync();
+
             return View(model);
         }
 
@@ -401,7 +423,14 @@ public class StudentsController : Controller
 
         TempData["SuccessMessage"] = "生徒を登録しました。";
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(
+            "AddMembership",
+            "Classes",
+            new
+            {
+                id = model.ClassId!.Value,
+                studentId = student.Id
+            });
     }
 
     [HttpGet]
@@ -795,5 +824,21 @@ public class StudentsController : Controller
         var escapedText = text.Replace("\"", "\"\"");
 
         return $"\"{escapedText}\"";
+    }
+
+    private async Task<List<SelectListItem>> LoadActiveClassOptionsAsync()
+    {
+        return await _context.Classes
+            .Where(soccerClass =>
+                !soccerClass.IsDeleted
+                && soccerClass.IsActive)
+            .AsNoTracking()
+            .OrderBy(soccerClass => soccerClass.Name)
+            .Select(soccerClass => new SelectListItem
+            {
+                Value = soccerClass.Id.ToString(),
+                Text = soccerClass.Name
+            })
+            .ToListAsync();
     }
 }

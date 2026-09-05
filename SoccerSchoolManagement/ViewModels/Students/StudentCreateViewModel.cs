@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SoccerSchoolManagement.ViewModels.Students;
 
@@ -30,6 +31,11 @@ public class StudentCreateViewModel : IValidatableObject
     [Required(ErrorMessage = "入会日は必須です。")]
     [DataType(DataType.Date)]
     public DateTime? JoinedAt { get; set; }
+
+    [Required(ErrorMessage = "所属クラスを選択してください。")]
+    public int? ClassId { get; set; }
+
+    public List<SelectListItem> ClassOptions { get; set; } = new();
 
     [Required(ErrorMessage = "在籍状況は必須です。")]
     [StringLength(20, ErrorMessage = "在籍状況は20文字以内で入力してください。")]

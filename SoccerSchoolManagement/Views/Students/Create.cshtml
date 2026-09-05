@@ -84,6 +84,14 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="ClassId" class="form-label">所属クラス</label>
+                <select asp-for="ClassId" asp-items="Model.ClassOptions" class="form-select">
+                    <option value="">選択してください</option>
+                </select>
+                <span asp-validation-for="ClassId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
                 <label asp-for="Status" class="form-label">在籍状況</label>
                 <select asp-for="Status" class="form-select">
                     <option value="">選択してください</option>

@@ -200,7 +200,7 @@ public class ClassesController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> AddMembership(int? id, string? keyword)
+    public async Task<IActionResult> AddMembership(int? id, string? keyword, int? studentId = null)
     {
         if (!id.HasValue)
         {
@@ -233,11 +233,28 @@ public class ClassesController : Controller
 
         await LoadStudentOptionsAsync(model);
 
-        if (!string.IsNullOrWhiteSpace(model.Keyword)
-            && model.StudentOptions.Count == 1
-            && int.TryParse(model.StudentOptions[0].Value, out var studentId))
+        if (studentId.HasValue
+            && model.StudentOptions.Any(option =>
+                option.Value == studentId.Value.ToString()))
         {
-            model.StudentId = studentId;
+            var selectedStudent = await _context.Students
+                .AsNoTracking()
+                .FirstOrDefaultAsync(student =>
+                    student.Id == studentId.Value
+                    && !student.IsDeleted
+                    && student.Status != "退会済み");
+
+            if (selectedStudent is not null)
+            {
+                model.StudentId = selectedStudent.Id;
+                model.StartDate = selectedStudent.JoinedAt.Date;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(model.Keyword)
+            && model.StudentOptions.Count == 1
+            && int.TryParse(model.StudentOptions[0].Value, out var searchedStudentId))
+        {
+            model.StudentId = searchedStudentId;
         }
 
         return View(model);

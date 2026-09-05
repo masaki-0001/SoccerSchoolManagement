@@ -6,6 +6,13 @@
 
 <h1>生徒の所属登録</h1>
 
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
 <p class="text-muted">
     所属先クラス：@Model.ClassName
 </p>
